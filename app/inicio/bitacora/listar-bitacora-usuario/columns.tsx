@@ -22,7 +22,7 @@ export type Bitacora = {
   UsuarioM: string
 }
 
-export const columns: ColumnDef<Bitacora>[] = [
+export const columnsBit: ColumnDef<Bitacora>[] = [
   {
     accessorKey: "Accion",
     meta: "Acción",

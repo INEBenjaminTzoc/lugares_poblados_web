@@ -11,6 +11,8 @@ import { Search } from 'lucide-react';
 import { Municipio } from '../../municipios/listar-municipios/columns';
 import { DataTable } from '@/components/data-table';
 import { columns, LugaresPobladosHistorial } from './columns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Bitacora, columnsBit } from '../../bitacora/listar-bitacora-usuario/columns';
 
 export default function HistorialLugaresPoblados() {
   //-----------------------LISTAS PARA SELECTORES------------------------//
@@ -23,6 +25,7 @@ export default function HistorialLugaresPoblados() {
   const [ estadosSelected, setEstadosSelected ] = useState<number[]>([]);
 
   const [ lugaresPobladosHistorial, setLugaresPobladosHistorial ] = useState<LugaresPobladosHistorial[]>([]);
+  const [ historiales, setHistoriales ] = useState<{ NombreDepartamento: string, bitacoras: Bitacora[] }[]>([]);
 
   useEffect(() => {
     const getDepartamentos = async () => {
@@ -114,18 +117,46 @@ export default function HistorialLugaresPoblados() {
   }
 
   const handleClickSearch = async () => {
-    const res = await axios
-        .post('/api/lugares-poblados/historial-lugares-poblados', 
-          { 
-            departamentos: departamentosSelected, 
-            municipios: municipiosSelected, 
-            estados: estadosSelected });
-    if (res.data.code !== 200) {
-        toast.error("Error al obtener detalle");
-        return;
+    try {
+      const res = await axios
+          .post('/api/lugares-poblados/historial-lugares-poblados', 
+            { 
+              departamentos: departamentosSelected, 
+              municipios: municipiosSelected, 
+              estados: estadosSelected });
+      if (res.data.code !== 200) {
+          toast.error("Error al obtener detalle");
+          return;
+      }
+      const lugaresPobladosHistorial: LugaresPobladosHistorial[] = res.data.lugaresPobladosHistorial;
+      setLugaresPobladosHistorial(lugaresPobladosHistorial);
+
+      getHistorialDepartamentos();
+    } catch (error) {
+      toast.error("Error al obtener lugares poblados");
+      setLugaresPobladosHistorial([]);
     }
-    const lugaresPobladosHistorial: LugaresPobladosHistorial[] = res.data.lugaresPobladosHistorial;
-    setLugaresPobladosHistorial(lugaresPobladosHistorial);
+  }
+
+  const getHistorialDepartamentos = () => {
+    setHistoriales([]);
+    departamentosSelected.forEach(async idDepartamento => {
+      const departamento = departamentos.find(dep => parseInt(dep.value) === idDepartamento);
+      const resHist = await axios
+        .get(`/api/lugares-poblados/historial-lugares-poblados/${idDepartamento}`);
+      if (resHist.data.code !== 200) {
+        toast.error(`Error al obtener historial del departamento: ${departamento?.label}`);
+        return;
+      }
+      const historial: Bitacora[] = resHist.data.historial;
+      setHistoriales((prevHistoriales) => [
+        ...prevHistoriales,
+        { 
+          NombreDepartamento: departamento?.label || '', 
+          bitacoras: historial 
+        }
+      ])
+    })
   }
 
   return (
@@ -172,7 +203,31 @@ export default function HistorialLugaresPoblados() {
                     <Search /> Consultar
                 </Button>
             </div>
-            <DataTable columns={columns} data={lugaresPobladosHistorial} />
+            <div className="mt-8">
+              <Tabs defaultValue='lugPob'>
+                <TabsList>
+                  <TabsTrigger value='lugPob' className='cursor-pointer'>
+                    Lugares Poblados
+                  </TabsTrigger>
+                  <TabsTrigger value='historial' className='cursor-pointer'>
+                    Historial del departamento
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value='lugPob'>
+                  <DataTable columns={columns} data={lugaresPobladosHistorial} />
+                </TabsContent>
+                <TabsContent value='historial'>
+                  {historiales && historiales.map((historial, index) => (
+                    <div key={index} className='mt-5'>
+                      <h2 className="text-start scroll-m-20 pb-2 text-xl font-semibold tracking-tight first:mt-0">
+                        {historial.NombreDepartamento}
+                      </h2>
+                      <DataTable columns={columnsBit} data={historial.bitacoras} />
+                    </div>
+                  ))}
+                </TabsContent>
+              </Tabs>
+            </div>
         </div>
     </>
   )

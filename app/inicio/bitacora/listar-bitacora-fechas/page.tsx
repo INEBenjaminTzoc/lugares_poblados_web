@@ -10,7 +10,7 @@ import { CalendarIcon, Search } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
-import { Bitacora, columns } from '../listar-bitacora-usuario/columns'
+import { Bitacora, columnsBit } from '../listar-bitacora-usuario/columns'
 import { DataTable } from '@/components/data-table'
 import moment from 'moment'
 
@@ -32,7 +32,6 @@ export default function ListarBitacoraFechas() {
           { fechaInicio: formattedFrom, 
             fechaFin: formattedTo
           });
-          console.log(res);
         if (res.data.code !== 200) {
             toast.error("Error al obtener detalle");
             return;
@@ -97,7 +96,7 @@ export default function ListarBitacoraFechas() {
               <Search /> Consultar
           </Button>
         </div>
-        <DataTable columns={columns} data={bitacoraFechas} />
+        <DataTable columns={columnsBit} data={bitacoraFechas} />
       </div>
     </>
   )

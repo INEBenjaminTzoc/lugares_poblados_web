@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import axios from "axios";
 
 export function LoginForm({
   className,
@@ -21,22 +22,16 @@ export function LoginForm({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "ContentType": "application/json" },
-        body: JSON.stringify({user, password})
-      });
+      const response = await axios.post('/api/login', {user, password});
 
-      const data = await response.json();
-
-      if (data.code !== 200) {
+      if (response.data.code !== 200) {
         toast.error("Error al iniciar sesión");
         return;
       }
 
       toast.success("Inicio de sesión exitoso");
-      localStorage.setItem('usuario', data.userData.usuario);
-      localStorage.setItem('tipo_usuario', data.userData.tipo_usuario);
+      localStorage.setItem('usuario', response.data.userData.personal_nombre);
+      localStorage.setItem('tipo_usuario', response.data.userData.tipo_usuario);
 
       router.push("/inicio");
 

@@ -3,7 +3,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
-import { Bitacora, columns, Usuario } from './columns';
+import { Bitacora, columnsBit, Usuario } from './columns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -51,7 +51,6 @@ export default function ListarBitacoraUsuario() {
       const res = await axios
         .post('/api/bitacora/bitacora-usuario-creacion', 
         { usuario: usuarioSeleccionado?.Nombre });
-      console.log(res)
       if (res.data.code !== 200) {
           toast.error("Error al obtener detalle");
           return;
@@ -119,10 +118,10 @@ export default function ListarBitacoraUsuario() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value='creacion'>
-              <DataTable columns={columns} data={bitacoraCreacion} />
+              <DataTable columns={columnsBit} data={bitacoraCreacion} />
             </TabsContent>
             <TabsContent value='modificacion'>
-              <DataTable columns={columns} data={bitacoraModificacion} />
+              <DataTable columns={columnsBit} data={bitacoraModificacion} />
             </TabsContent>
           </Tabs>
         </div>

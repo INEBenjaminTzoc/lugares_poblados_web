@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     const { departamentos, municipios, estados, estadosMunicipio } = await request.json();
-    console.log(departamentos, municipios, estados, estadosMunicipio);
 
     try {
         const [aldeasCaserios2018]: any = await pool.execute(`

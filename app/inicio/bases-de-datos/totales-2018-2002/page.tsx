@@ -134,7 +134,6 @@ export default function Totales20182002() {
                 municipios: municipiosSelected, 
                 estados: estadosSelected,
                 estadosMunicipio: estadosMunicipioSelected });
-        console.log(res.data);
         if (res.data.code !== 200) {
             toast.error("Error al obtener detalle");
             setAldeasCaserios2018([]);

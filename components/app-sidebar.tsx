@@ -2,15 +2,11 @@
 
 import * as React from "react"
 import {
-  ClipboardPenLine,
   Database,
-  Frame,
   House,
-  Map,
   MapPinHouse,
   MapPinned,
   NotebookPen,
-  PieChart,
   TableProperties,
 } from "lucide-react"
 
@@ -120,9 +116,9 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Reportes",
+      title: "Mapa Interactivo",
       url: "/inicio/mapa-interactivo",
-      icon: ClipboardPenLine,
+      icon: MapPinned,
     },
     {
       title: "Multiples Observaciones",
