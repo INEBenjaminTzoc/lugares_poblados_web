@@ -14,7 +14,7 @@ import { DataTable } from '@/components/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import moment from 'moment';
-import { PDFDownloadLink } from '@react-pdf/renderer'
+import { Font, PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
 import ReporteLugaresPoblados from '@/components/reporte-lugares-poblados';
 import DownloadButton from '@/components/download-pdf-button';
 
@@ -208,6 +208,9 @@ export default function ListarSegunCategorias() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
+            <PDFViewer className='w-full h-[90vh]'>
+                <ReporteLugaresPoblados/>
+            </PDFViewer>
             <div className='w-full flex flex-row mt-4 gap-x-3'>
                 <div className='w-52'>
                     <MultiSelect 
