@@ -1,8 +1,9 @@
 "use client"
 
-import { Page, Text, View, Document, Image, StyleSheet,  } from '@react-pdf/renderer'
+import { Page, Text, View, Document, Image, StyleSheet, Line } from '@react-pdf/renderer'
 import INE from '@/public/img/INE.png'
 import TextoINE from '@/public/img/TextoINE.png'
+import RLP from '@/public/img/rlp.png'
 import React from 'react'
 
 const data = {
@@ -11,6 +12,9 @@ const data = {
   rows: [
     ['1', 'BALBATZUL I', 'Cobán', 'CASERIO', '2'],
     ['2', 'BALBATZUL II', 'Cobán', 'ALDEA', '1'],
+    ['3', 'BALBATZUL III', 'Cobán', 'BARRIO', '3'],
+    ['3', 'BALBATZUL III', 'Cobán', 'BARRIO', '3'],
+    ['3', 'BALBATZUL III', 'Cobán', 'BARRIO', '3'],
     ['3', 'BALBATZUL III', 'Cobán', 'BARRIO', '3']
   ],
   footer: 'footer'
@@ -20,12 +24,12 @@ export default function ReporteLugaresPoblados() {
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
-        <View style={styles.pageHeader}>
+        <View style={styles.pageHeader} fixed>
           <Image src={INE.src} style={styles.logoINE}></Image>
           <Image src={TextoINE.src} style={styles.textoINE}></Image>
           <Image src={INE.src} style={styles.logoINE}></Image>
         </View>
-        {/* <View style={styles.section}>
+        <View style={styles.section}>
           <Text style={styles.subtitle}>
             <Text style={{fontWeight: 'bold'}}>Departamento:</Text> Alta Verapaz
           </Text>
@@ -295,8 +299,129 @@ export default function ReporteLugaresPoblados() {
               ))}
             </View>
           </View>
-        </View> */}
+          
+          <View style={{paddingVertical: 15}}>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+            <Text style={{fontWeight: 'bold'}}>CRITERIO 10:</Text> Todos los lugares poblados que son reportados 
+            en certificación histórica aun No resuelta por el INE, por inconsistencias no definidas 
+            (Caso Especial San Fransisco El Alto).
+            </Text>
+          </View>
+          <View style={{width: '100%', height: 'auto'}}>
+            <View style={styles.table}> 
+              <View style={styles.tableRow}>
+                {data.headers.map((header, index) => (
+                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
+                    <Text style={styles.tableCell}>{header}</Text>
+                  </View>
+                ))}
+              </View>
+              {data.rows.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.tableRow}>
+                  {row.map((cell, cellIndex) => (
+                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
+                      <Text style={styles.tableCell}>{cell}</Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </View>
 
+          <View style={{paddingVertical: 15}}>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+            <Text style={{fontWeight: 'bold'}}>NOTA:</Text> Los lugares poblados que tengan criterio 
+            tres y cuatro para regular su categoría y reconocerla de manera oficial, la municipalidad 
+            deberá remitir al Instituto Nacional de Estadística los dictámenes que establece el 
+            artículo 22 del Código Municipal. Con los lugares poblados que tengan criterio dos, de 
+            igual manera deberán remitir los referidos dictámenes, entiéndase solamente los que fueron 
+            elevados de categoría (Caserío a Aldea) sin embargo estos si se consideran para el conteo 
+            de aldeas y caseríos, pero con la categoría de caserío.
+            </Text>
+          </View>
+          
+          <View style={{paddingVertical: 15}}>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+            <Text style={{fontWeight: 'bold'}}>TOTALES SEGUN CATEGORIAS:</Text>
+            </Text>
+          </View>
+          <View style={{width: '50%', height: 'auto'}}>
+            <View style={styles.table}> 
+              <View style={styles.tableRow}>
+                  <View style={styles.tableHeader30}>
+                    <Text style={styles.tableCell}>No.</Text>
+                  </View>
+                  <View style={styles.tableHeader35}>
+                    <Text style={styles.tableCell}>Categoría</Text>
+                  </View>
+                  <View style={styles.tableHeader35}>
+                    <Text style={styles.tableCell}>Total</Text>
+                  </View>
+              </View>
+              <View style={styles.tableRow}>
+                  <View style={styles.tableRow30}>
+                    <Text style={styles.tableCell}>1</Text>
+                  </View>
+                  <View style={styles.tableRow35}>
+                    <Text style={styles.tableCell}>CIUDAD</Text>
+                  </View>
+                  <View style={styles.tableRow35}>
+                    <Text style={styles.tableCell}>49</Text>
+                  </View>
+              </View>
+            </View>
+          </View>
+          
+          <View style={{paddingVertical: 15}}>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+            <Text style={{fontWeight: 'bold'}}>SITUADO CONSTITUCIONAL:</Text>
+            </Text>
+          </View>
+          <View style={{width: '50%', height: 'auto'}}>
+            <View style={styles.table}> 
+              <View style={styles.tableRow}>
+                  <View style={styles.tableHeader30}>
+                    <Text style={styles.tableCell}>Aldeas</Text>
+                  </View>
+                  <View style={styles.tableHeader35}>
+                    <Text style={styles.tableCell}>Caserios</Text>
+                  </View>
+                  <View style={styles.tableHeader35}>
+                    <Text style={styles.tableCell}>Total</Text>
+                  </View>
+              </View>
+              <View style={styles.tableRow}>
+                  <View style={styles.tableRow30}>
+                    <Text style={styles.tableCell}>28</Text>
+                  </View>
+                  <View style={styles.tableRow35}>
+                    <Text style={styles.tableCell}>118</Text>
+                  </View>
+                  <View style={styles.tableRow35}>
+                    <Text style={styles.tableCell}>146</Text>
+                  </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={{paddingVertical: 15}}>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+            <Text style={{fontWeight: 'bold'}}>ULTIMA ACTUALIZACIÓN TÉCNICO ANALISTA:</Text>
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.pageFooter} fixed>
+          <Image src={RLP.src} style={{width: 65, height: 'auto'}}></Image>
+          <View style={{width: '100%', height: 'auto', display: 'flex', flexDirection: 'column', paddingHorizontal: 5}}>
+              <Text style={{textAlign: 'center', fontSize: 10, paddingVertical: 4, color: '#005183', fontWeight: '600'}}>www.ine.gob.gt</Text>
+              <View style={{width: '100%', height: '3px', backgroundColor: '#005183'}}></View>
+              <Text style={{textAlign: 'center', fontSize: 8, paddingVertical: 4, color: '#005183', fontWeight: '600'}}>8a. calle 9-55 zona 1, Edificio América Guatemala / PBX 2315-4700</Text>
+          </View>
+          <View style={{width: 65, height: '100%', paddingHorizontal: 10, display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+            <Text>1/1</Text>
+          </View>
+        </View>
       </Page>
     </Document>
   )
@@ -304,7 +429,6 @@ export default function ReporteLugaresPoblados() {
 
 const styles: { [key: string]: any } = StyleSheet.create({
   page: {
-    // flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     fontSize: 12,
     paddingVertical: 15,
@@ -321,8 +445,6 @@ const styles: { [key: string]: any } = StyleSheet.create({
   },
   section: {
     margin: 10,
-    // paddingVertical: 10,
-    // paddingHorizontal: 25,
     flexGrow: 1
   },
   textoINE: {
@@ -372,6 +494,14 @@ const styles: { [key: string]: any } = StyleSheet.create({
     borderTopWidth: 0,
     fontWeight: 'bold'
   },
+  tableHeader30: {
+    width: "30%", 
+    borderStyle: "solid", 
+    borderWidth: 1, 
+    borderLeftWidth: 0, 
+    borderTopWidth: 0,
+    fontWeight: 'bold'
+  },
   tableHeader35: {
     width: "35%", 
     borderStyle: "solid", 
@@ -396,16 +526,24 @@ const styles: { [key: string]: any } = StyleSheet.create({
     borderTopWidth: 0,
     fontSize: 10
   },
-  tableRow35: {
-    width: "35%", 
+  tableRow25: {
+    width: "25%", 
     borderStyle: "solid", 
     borderWidth: 1, 
     borderLeftWidth: 0, 
     borderTopWidth: 0,
     fontSize: 10
   },
-  tableRow25: {
-    width: "25%", 
+  tableRow30: {
+    width: "30%", 
+    borderStyle: "solid", 
+    borderWidth: 1, 
+    borderLeftWidth: 0, 
+    borderTopWidth: 0,
+    fontSize: 10
+  },
+  tableRow35: {
+    width: "35%", 
     borderStyle: "solid", 
     borderWidth: 1, 
     borderLeftWidth: 0, 
@@ -416,5 +554,14 @@ const styles: { [key: string]: any } = StyleSheet.create({
     margin: "auto", 
     marginTop: 5, 
     fontSize: 9
+  },
+  pageFooter: {
+    width: '100%',
+    height: 'auto',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 15
   }
 });

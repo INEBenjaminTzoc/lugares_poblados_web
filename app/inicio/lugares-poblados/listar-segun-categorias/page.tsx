@@ -194,7 +194,7 @@ export default function ListarSegunCategorias() {
         console.error(error)
         return '';
     }
-}
+  }
 
   return (
     <>
