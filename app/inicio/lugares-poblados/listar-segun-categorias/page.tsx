@@ -14,6 +14,9 @@ import { DataTable } from '@/components/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import moment from 'moment';
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import ReporteLugaresPoblados from '@/components/reporte-lugares-poblados';
+import DownloadButton from '@/components/download-pdf-button';
 
 export default function ListarSegunCategorias() {
   //-----------------------LISTAS PARA SELECTORES------------------------//
@@ -238,6 +241,7 @@ export default function ListarSegunCategorias() {
                 </Button>
             </div>
             <DataTable columns={columns(handleVerArchivosClick)} data={lugaresPoblados} />
+            <DownloadButton />
         </div>
         <Dialog open={dialogIsOpen} onOpenChange={() => { setDialogIsOpen(!dialogIsOpen) }}>
             <DialogContent className='px-0 pt-5 h-[90vh] sm:max-w-[90vw] w-[90vw] overflow-hidden'>

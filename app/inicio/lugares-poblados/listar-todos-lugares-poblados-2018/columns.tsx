@@ -3,7 +3,7 @@
 import { DataTableColumnHeader } from "@/components/datatable-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 
-export type DetalleLugarPoblado2002 = {
+export type DetalleLugarPoblado2018 = {
   ID_Departamento: number
   Departamento: string
   ID_Municipio: number
@@ -15,7 +15,7 @@ export type DetalleLugarPoblado2002 = {
   EstadoMunicipio: string
 }
 
-export const columns: ColumnDef<DetalleLugarPoblado2002>[] = [
+export const columns: ColumnDef<DetalleLugarPoblado2018>[] = [
   {
     accessorKey: "Departamento",
     header: ({ column }) => (
@@ -29,7 +29,7 @@ export const columns: ColumnDef<DetalleLugarPoblado2002>[] = [
     ),
   },
   {
-    accessorKey: "Nombre",
+    accessorKey: "LugarPoblado",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Lugar Poblado" />
     ),
@@ -41,9 +41,21 @@ export const columns: ColumnDef<DetalleLugarPoblado2002>[] = [
     ),
   },
   {
+    accessorKey: "Estado",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Estado" />
+    ),
+  },
+  {
     accessorKey: "Observacion",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Observación" />
+    ),
+  },
+  {
+    accessorKey: "EstadoMunicipio",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Estado Municipio" />
     ),
   },
 ]
