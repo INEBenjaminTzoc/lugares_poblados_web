@@ -20,8 +20,13 @@ const data = {
   footer: 'footer'
 }
 
-export default function ReporteLugaresPoblados() {
-  return (
+export type IData = {
+  departamento?: string
+  municipio?: string
+  fecha?: string
+}
+
+const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
     <Document>
       <Page size="LETTER" style={styles.page}>
         <View style={styles.pageHeader} fixed>
@@ -31,14 +36,14 @@ export default function ReporteLugaresPoblados() {
         </View>
         <View style={styles.section}>
           <Text style={styles.subtitle}>
-            <Text style={{fontWeight: 'bold'}}>Departamento:</Text> Alta Verapaz
+            <Text style={{fontWeight: 'bold'}}>Departamento:</Text> {departamento}
           </Text>
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <Text style={{width: '50%'}}>
-            <Text style={{fontWeight: 'bold'}}>Municipio:</Text> Cobán
+            <Text style={{fontWeight: 'bold'}}>Municipio:</Text> {municipio}
             </Text>
             <Text style={{textAlign: 'right', fontSize: 10, width: '50%'}}>
-              17/03/2025 22h:26m
+              {fecha}
             </Text>
           </View>
           
@@ -419,13 +424,14 @@ export default function ReporteLugaresPoblados() {
               <Text style={{textAlign: 'center', fontSize: 8, paddingVertical: 4, color: '#005183', fontWeight: '600'}}>8a. calle 9-55 zona 1, Edificio América Guatemala / PBX 2315-4700</Text>
           </View>
           <View style={{width: 65, height: '100%', paddingHorizontal: 10, display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-            <Text>1/1</Text>
+            <Text render={({ pageNumber, totalPages }) => (`${pageNumber}/${totalPages}`)} />
           </View>
         </View>
       </Page>
     </Document>
-  )
-}
+)
+
+export default ReporteLugaresPoblados;
 
 const styles: { [key: string]: any } = StyleSheet.create({
   page: {
@@ -565,3 +571,15 @@ const styles: { [key: string]: any } = StyleSheet.create({
     paddingTop: 15
   }
 });
+
+export const reporte = (
+  <Document>
+    <Page size="LETTER" style={styles.page}>
+      <View style={styles.pageHeader} fixed>
+        <Image src={INE.src} style={styles.logoINE}></Image>
+        <Image src={TextoINE.src} style={styles.textoINE}></Image>
+        <Image src={INE.src} style={styles.logoINE}></Image>
+      </View>
+    </Page>
+  </Document>
+)

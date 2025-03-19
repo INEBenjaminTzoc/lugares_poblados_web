@@ -14,18 +14,19 @@ import { DataTable } from '@/components/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import moment from 'moment';
-import { Font, PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
-import ReporteLugaresPoblados from '@/components/reporte-lugares-poblados';
+import ReactPDF from '@react-pdf/renderer'
+import ReporteLugaresPoblados, { IData } from '@/components/reporte-lugares-poblados';
 import DownloadButton from '@/components/download-pdf-button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ListarSegunCategorias() {
   //-----------------------LISTAS PARA SELECTORES------------------------//
-  const [ departamentos, setDepartamentos ] = useState<multiSelectTemplate[]>([]);
-  const [ municipios, setMunicipios ] = useState<multiSelectTemplate[]>([]);
+  const [ departamentos, setDepartamentos ] = useState<Departamento[]>([]);
+  const [ municipios, setMunicipios ] = useState<Municipio[]>([]);
   const [ estados, setEstados ] = useState<multiSelectTemplate[]>([]);
   //-----------------------LISTAS DE VALORES SELECCIONADOS----------------------------//
-  const [ departamentosSelected, setDepartamentosSelected ] = useState<number[]>([]);
-  const [ municipiosSelected, setMunicipiosSelected ] = useState<number[]>([]);
+  const [ departamentoSelected, setDepartamentoSelected ] = useState<Departamento>();
+  const [ municipioSelected, setMunicipioSelected ] = useState<Municipio>();
   const [ estadosSelected, setEstadosSelected ] = useState<number[]>([]);
   //----------------------LISTA DE DETALLE LUGARES POBLADOS------------------------//
   const [ lugaresPoblados, setLugaresPoblados ] = useState<DetalleLugarPoblado[]>([]);
@@ -34,6 +35,7 @@ export default function ListarSegunCategorias() {
   const [dialogTitle, setDialogTitle] = useState<string>("ARCHIVOS DISPONIBLES");
   const [archivos, setArchivos] = useState<ArchivoLugarPoblado[] | null>(null);
   const [blobUrl, setBlobUrl] = useState<string>();
+
 
   useEffect(() => {
     const getDepartamentos = async () => {
@@ -44,12 +46,7 @@ export default function ListarSegunCategorias() {
             return;
           }
           const deptos: Departamento[] = res.data.departamentos;
-          setDepartamentos(
-            deptos.map((depto) => ({
-                value: depto.id.toString(),
-                label: depto.nombre
-            }))
-          )
+          setDepartamentos(deptos)
         } 
         catch (error) 
         {
@@ -84,42 +81,39 @@ export default function ListarSegunCategorias() {
     getEstados();
   }, []);
 
-  //---------------------------TRIGGERS DE LOS SELECTORES-------------------------//
-  const handleDepartamentoChange = (valuesSelected: string[]) => {
-    setMunicipios([]);
-    const valuesParsed = valuesSelected.map(value => parseInt(value)) as number[];
-
-    setDepartamentosSelected(valuesParsed);
-
-    valuesParsed.forEach(async (idDepartamento) => {
-        try {
-            const res = await axios.get(`/api/municipios/lista-municipios/${idDepartamento}`);
-            if (res.data.code !== 200) {
-                toast.error(`Error al obtener los municipios del departamento: ${idDepartamento}`);
-                return;
-            }
-            const municipios: Municipio[] = res.data.municipios;
-            setMunicipios((prevMunicipios) => [
-             ...prevMunicipios,
-             ...municipios.map((mun) => ({
-                value: mun.idMunicipio.toString(),
-                label: mun.municipio
-              }))   
-            ]);
-        } 
-        catch (error) 
-        {
-          toast.error(`Error al obtener municipios: ${error}`);
-          setMunicipios([]);
+  const handleDepartamentoSeleccionadoChange = async (value: string) => {
+    try {
+        setMunicipios([]);
+        const depto = departamentos.find(depto => parseInt(depto.id) === parseInt(value));
+        setDepartamentoSelected(depto);
+    
+        const res = await axios.get(`/api/municipios/lista-municipios/${parseInt(value)}`);
+        if (res.data.code !== 200) {
+            toast.error(`Error al obtener los municipios del departamento: ${depto?.nombre}`);
+            return;
         }
-    })
-  }
-
-  const handleMunicipioChange = (valuesSelected: string[]) => {
-    const valuesParsed = valuesSelected.map(value => parseInt(value)) as number[];
-    setMunicipiosSelected(valuesParsed);
+        const municipios: Municipio[] = res.data.municipios;
+        setMunicipios(municipios);
+    } 
+    catch (error) 
+    {
+        toast.error(`Error al obtener municipios: ${error}`);
+        setMunicipios([]);
+    }
   }
   
+  const handleMunicipioSeleccionadoChange = async (value: string) => {
+    try {
+        const muni = municipios.find(mun => mun.idMunicipio === parseInt(value));
+        setMunicipioSelected(muni);
+    } 
+    catch (error) 
+    {
+        toast.error(`Error al obtener municipio: ${error}`);
+        setMunicipios([]);
+    }
+  }
+
   const handleEstadoChange = (valuesSelected: string[]) => {
     const valuesParsed = valuesSelected.map(value => parseInt(value)) as number[];
     setEstadosSelected(valuesParsed);
@@ -129,8 +123,8 @@ export default function ListarSegunCategorias() {
     const res = await axios
         .post('/api/lugares-poblados/listar-segun-categoria', 
           { 
-            departamento: departamentosSelected, 
-            municipio: municipiosSelected, 
+            departamento: departamentoSelected, 
+            municipio: municipioSelected, 
             estado: estadosSelected });
     if (res.data.code !== 200) {
         toast.error("Error al obtener detalle");
@@ -140,6 +134,7 @@ export default function ListarSegunCategorias() {
     setLugaresPoblados(detalleLugaresPoblados);
   }
 
+  //----------------------------MANEJO DE ARCHIVOS--------------------------//
   const handleVerArchivosClick = async (idLugarPoblado: number) => {
     const lugPob = lugaresPoblados.find(lugPob => lugPob.ID_LugarPoblado === idLugarPoblado);
     if (lugPob)
@@ -196,6 +191,20 @@ export default function ListarSegunCategorias() {
     }
   }
 
+  const [pdfUrl, SetPdfUrl] = useState<string | null>(null);
+
+  const generarReporte = async () => {
+    console.log('prueba');
+    const res = await axios.get('/api/report');
+    console.log(res);
+    // const date = moment().format("DD/MM/YYYY HH[h]:mm[m]");
+    // const file = await ReactPDF.renderToString(<ReporteLugaresPoblados fecha={date} />);
+    // console.log(file);
+    // const blob = new Blob([file], { type: "application/pdf" });
+    // const url = URL.createObjectURL(blob)
+    // SetPdfUrl(url);
+  }
+
   return (
     <>
         <div className="py-5">
@@ -208,27 +217,41 @@ export default function ListarSegunCategorias() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <PDFViewer className='w-full h-[90vh]'>
+            {/* <PDFViewer className='w-full h-[90vh]'>
                 <ReporteLugaresPoblados/>
-            </PDFViewer>
+            </PDFViewer> */}
             <div className='w-full flex flex-row mt-4 gap-x-3'>
-                <div className='w-52'>
-                    <MultiSelect 
-                        options={departamentos}
-                        onValueChange={handleDepartamentoChange}
-                        placeholder='Departamentos'
-                        maxCount={2}
-                        variant="inverted"
-                    />
+                <div className='w-auto'>
+                    <Select onValueChange={handleDepartamentoSeleccionadoChange}>
+                        <SelectTrigger className='w-60'>
+                            <SelectValue placeholder="Departamento" />
+                        </SelectTrigger>
+                        <SelectContent className='max-h-[20rem]'>
+                        {departamentos && departamentos.length > 0 && departamentos.map((dept) => (
+                            <SelectItem value={dept.id.toString()}>
+                            <div className='flex flex-col'>
+                                {dept.nombre}
+                            </div>
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
                 </div>
-                <div className='w-60'>
-                    <MultiSelect 
-                        options={municipios}
-                        onValueChange={handleMunicipioChange}
-                        placeholder='Municipios'
-                        maxCount={2}
-                        variant="inverted"
-                    />
+                <div className='w-auto'>
+                    <Select onValueChange={handleMunicipioSeleccionadoChange}>
+                        <SelectTrigger className='w-60'>
+                            <SelectValue placeholder="Municipio" />
+                        </SelectTrigger>
+                        <SelectContent className='max-h-[20rem]'>
+                        {municipios && municipios.length > 0 && municipios.map((mun) => (
+                            <SelectItem value={mun.idMunicipio.toString()}>
+                            <div className='flex flex-col'>
+                                {mun.municipio}
+                            </div>
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div className='w-60'>
                     <MultiSelect 
@@ -244,7 +267,11 @@ export default function ListarSegunCategorias() {
                 </Button>
             </div>
             <DataTable columns={columns(handleVerArchivosClick)} data={lugaresPoblados} />
-            <DownloadButton />
+            <DownloadButton 
+                departamento={departamentoSelected?.nombre} 
+                municipio={municipioSelected?.municipio} 
+                fecha={''}
+            />
         </div>
         <Dialog open={dialogIsOpen} onOpenChange={() => { setDialogIsOpen(!dialogIsOpen) }}>
             <DialogContent className='px-0 pt-5 h-[90vh] sm:max-w-[90vw] w-[90vw] overflow-hidden'>
