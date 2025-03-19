@@ -29,7 +29,50 @@ export async function POST(request: NextRequest) {
             ORDER BY lp.cod_categoria, lp.cod_estado, lp.nombre ASC    
         `);
 
-        return NextResponse.json({ code: 200, lugaresPoblados: rows });
+        const [totalesPorCategoria] = await pool.execute(`
+            SELECT  
+                cat.etiqueta AS Categoria, 
+                count(lp.cod_categoria) AS Totales
+            FROM municipio AS m 
+            INNER JOIN departamento AS d ON d.id=m.departamento_id 
+            INNER JOIN lugar_poblado AS lp ON m.id=lp.cod_municipio 
+            INNER JOIN categoria AS cat ON cat.idcategoria=lp.cod_categoria
+            WHERE d.id IN (${departamento}) 
+            and m.id IN (${municipio}) 
+            and lp.cod_estado in (${estado})
+            and cat.idcategoria in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37) 
+            GROUP BY lp.cod_categoria
+            ORDER BY lp.cod_categoria, lp.cod_estado, lp.nombre ASC    
+        `);
+
+        const [situadoConstitucional] = await pool.execute(`
+            SELECT 
+                SUM(IF(cat.idcategoria = '4', 1, 0)) AS Aldeas,
+                SUM(IF(cat.idcategoria = '6', 1, 0)) AS Caserios,
+                SUM(IF(cat.idcategoria = '4', 1, 0)) + SUM(IF(cat.idcategoria = '6', 1, 0)) AS Total
+            FROM municipio AS m
+            INNER JOIN departamento AS d ON d.id = m.departamento_id
+            INNER JOIN lugar_poblado AS lp ON m.id = lp.cod_municipio
+            INNER JOIN categoria AS cat ON cat.idcategoria = lp.cod_categoria
+            WHERE m.id=(${municipio}) 
+            AND (cat.idcategoria IN (4 , 6))
+            AND ((lp.cod_estado IN (1 , 2, 6, 8, 9)
+            AND lp.estado = 'T') OR (lp.cod_estado = 5 AND lp.estado = 'Y'))  
+            GROUP BY d.id , d.nombre , m.id , m.nombre    
+        `);
+
+        const [ultimaModificacion] = await pool.execute(`
+           SELECT 
+                usuario_c AS UsuarioCreacion, 
+                usuario_u AS UsuarioModificacion,
+                DATE(FechaTransaccion) as FechaTransaccion
+            FROM bitacora
+            WHERE cod_municipio IN (101)
+            and transaccion <> 'Cambio de estado'
+            ORDER BY idbitacora desc limit 1; 
+        `);
+
+        return NextResponse.json({ code: 200, lugaresPoblados: rows, totalesPorCategoria, situadoConstitucional, ultimaModificacion });
     } catch (error) {
         console.error("Error:", error);
         return NextResponse.json({ code: 500, error });

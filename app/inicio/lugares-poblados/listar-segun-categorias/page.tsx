@@ -8,15 +8,14 @@ import { toast } from 'sonner';
 import { MultiSelect } from '@/components/multi-select';
 import { Municipio } from '../../municipios/listar-municipios/columns';
 import { Button } from '@/components/ui/button';
-import { File, Search } from 'lucide-react';
-import { ArchivoLugarPoblado, columns, DetalleLugarPoblado } from './columns';
+import { File, Loader2, Search } from 'lucide-react';
+import { ArchivoLugarPoblado, columns, DetalleLugarPoblado, SituadoConstitucional, TotalesPorCategoria, UltimaActualizacion } from './columns';
 import { DataTable } from '@/components/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import moment from 'moment';
-import ReactPDF from '@react-pdf/renderer'
-import ReporteLugaresPoblados, { IData } from '@/components/reporte-lugares-poblados';
-import DownloadButton from '@/components/download-pdf-button';
+import { PDFViewer } from '@react-pdf/renderer'
+import ReporteLugaresPoblados from '@/components/reporte-lugares-poblados';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ListarSegunCategorias() {
@@ -24,61 +23,68 @@ export default function ListarSegunCategorias() {
   const [ departamentos, setDepartamentos ] = useState<Departamento[]>([]);
   const [ municipios, setMunicipios ] = useState<Municipio[]>([]);
   const [ estados, setEstados ] = useState<multiSelectTemplate[]>([]);
+  const [ categorias, setCategorias ] = useState<multiSelectTemplate[]>([]);
   //-----------------------LISTAS DE VALORES SELECCIONADOS----------------------------//
   const [ departamentoSelected, setDepartamentoSelected ] = useState<Departamento>();
   const [ municipioSelected, setMunicipioSelected ] = useState<Municipio>();
   const [ estadosSelected, setEstadosSelected ] = useState<number[]>([]);
+  const [ categoriasSelected, setCategoriasSelected ] = useState<number[]>([]);
   //----------------------LISTA DE DETALLE LUGARES POBLADOS------------------------//
   const [ lugaresPoblados, setLugaresPoblados ] = useState<DetalleLugarPoblado[]>([]);
+  const [ totalesPorCategoria, setTotalesPorCategoria ] = useState<TotalesPorCategoria[]>([]);
+  const [ situadoConstitucional, setSituadoConstitucional ] = useState<SituadoConstitucional[]>([]);
+  const [ UltimaActualizacion, setUltimaActualizacion ] = useState<UltimaActualizacion[]>([]);
   //--------------------------VARIABLES DIALOGO---------------------------//
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
   const [dialogTitle, setDialogTitle] = useState<string>("ARCHIVOS DISPONIBLES");
   const [archivos, setArchivos] = useState<ArchivoLugarPoblado[] | null>(null);
   const [blobUrl, setBlobUrl] = useState<string>();
 
+  //-----------------------VARIABLES PARA REPORTE---------------------------//
+  const [openDialogReport, setOpenDialogReport] = useState<boolean>(false);
+  const [stateReporte, setStateReporte] = useState<boolean>(false);
+  const [fecha, setFecha] = useState<string>("");
 
   useEffect(() => {
-    const getDepartamentos = async () => {
+    const getInitialData = async () => {
         try {
-          const res = await axios.get('/api/departamentos');
-          if (res.data.code !== 200) {
+          const resDepartamentos = await axios.get('/api/departamentos');
+          if (resDepartamentos.data.code !== 200) {
             toast.error("Error al obtener los departamentos");
             return;
           }
-          const deptos: Departamento[] = res.data.departamentos;
-          setDepartamentos(deptos)
-        } 
-        catch (error) 
-        {
-          toast.error(`Error al obtener departamentos: ${error}`);
-          setDepartamentos([]);
-        }
-    }
+          const deptos: Departamento[] = resDepartamentos.data.departamentos;
+          setDepartamentos(deptos);
 
-    const getEstados = async () => {
-        try {
-            const res = await axios.get('/api/estados');
-            if (res.data.code !== 200) {
-                toast.error("Error al obtener los estados");
-                return;
-            }
-            const estados: { idestado: number, etiqueta: string }[] = res.data.estados;
-            setEstados(
-                estados.map((est) => ({
-                    value: est.idestado.toString(),
-                    label: est.etiqueta
-                }))
-            )
+          const resEstados = await axios.get('/api/estados');
+          if (resEstados.data.code !== 200) {
+              toast.error("Error al obtener los estados");
+              return;
+          }
+          const estados: { idestado: number, etiqueta: string }[] = resEstados.data.estados;
+          setEstados(
+              estados.map((est) => ({
+                  value: est.idestado.toString(),
+                  label: est.etiqueta
+              }))
+          )
+
+          const resCategorias = await axios.get('/api/categorias');
+          if (resEstados.data.code !== 200) {
+            toast.error("Error al obtener las categorias");
+            return;
+          }
+          const categorias: { idcategoria: number, etiqueta: string }[] = resCategorias.data.categorias;
         } 
         catch (error) 
         {
-          toast.error(`Error al obtener estados: ${error}`);
+          toast.error(`Error al obtener datos: ${error}`);
+          setDepartamentos([]);
           setEstados([]);
         }
     }
   
-    getDepartamentos();
-    getEstados();
+    getInitialData();
   }, []);
 
   const handleDepartamentoSeleccionadoChange = async (value: string) => {
@@ -123,8 +129,8 @@ export default function ListarSegunCategorias() {
     const res = await axios
         .post('/api/lugares-poblados/listar-segun-categoria', 
           { 
-            departamento: departamentoSelected, 
-            municipio: municipioSelected, 
+            departamento: departamentoSelected?.id, 
+            municipio: municipioSelected?.idMunicipio, 
             estado: estadosSelected });
     if (res.data.code !== 200) {
         toast.error("Error al obtener detalle");
@@ -132,6 +138,12 @@ export default function ListarSegunCategorias() {
     }
     const detalleLugaresPoblados: DetalleLugarPoblado[] = res.data.lugaresPoblados;
     setLugaresPoblados(detalleLugaresPoblados);
+    const totalesPorCategoria: TotalesPorCategoria[] = res.data.totalesPorCategoria;
+    setTotalesPorCategoria(totalesPorCategoria);
+    const situadoConstitucional: SituadoConstitucional[] = res.data.situadoConstitucional;
+    setSituadoConstitucional(situadoConstitucional);
+    const ultimaModificacion: UltimaActualizacion[] = res.data.ultimaModificacion;
+    setUltimaActualizacion(ultimaModificacion);
   }
 
   //----------------------------MANEJO DE ARCHIVOS--------------------------//
@@ -191,19 +203,25 @@ export default function ListarSegunCategorias() {
     }
   }
 
-  const [pdfUrl, SetPdfUrl] = useState<string | null>(null);
-
-  const generarReporte = async () => {
-    console.log('prueba');
-    const res = await axios.get('/api/report');
-    console.log(res);
-    // const date = moment().format("DD/MM/YYYY HH[h]:mm[m]");
-    // const file = await ReactPDF.renderToString(<ReporteLugaresPoblados fecha={date} />);
-    // console.log(file);
-    // const blob = new Blob([file], { type: "application/pdf" });
-    // const url = URL.createObjectURL(blob)
-    // SetPdfUrl(url);
+  const generarReporte = () => {
+    setStateReporte(true);
+    setTimeout( ()=> {
+        const fecha = moment().format('DD/MM/YYYY HH[h]:mm[m]:ss[s]');
+        setFecha(fecha);
+    }, 300)
   }
+
+  useEffect(() => {
+    if (fecha !== '') {
+        setOpenDialogReport(true);
+    }
+  }, [fecha]);
+
+  useEffect(() => {
+    if (openDialogReport === true) {
+        setStateReporte(false);
+    }
+  }, [openDialogReport])
 
   return (
     <>
@@ -217,9 +235,6 @@ export default function ListarSegunCategorias() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            {/* <PDFViewer className='w-full h-[90vh]'>
-                <ReporteLugaresPoblados/>
-            </PDFViewer> */}
             <div className='w-full flex flex-row mt-4 gap-x-3'>
                 <div className='w-auto'>
                     <Select onValueChange={handleDepartamentoSeleccionadoChange}>
@@ -228,7 +243,7 @@ export default function ListarSegunCategorias() {
                         </SelectTrigger>
                         <SelectContent className='max-h-[20rem]'>
                         {departamentos && departamentos.length > 0 && departamentos.map((dept) => (
-                            <SelectItem value={dept.id.toString()}>
+                            <SelectItem key={dept.id} value={dept.id.toString()}>
                             <div className='flex flex-col'>
                                 {dept.nombre}
                             </div>
@@ -244,7 +259,7 @@ export default function ListarSegunCategorias() {
                         </SelectTrigger>
                         <SelectContent className='max-h-[20rem]'>
                         {municipios && municipios.length > 0 && municipios.map((mun) => (
-                            <SelectItem value={mun.idMunicipio.toString()}>
+                            <SelectItem key={mun.idMunicipio} value={mun.idMunicipio.toString()}>
                             <div className='flex flex-col'>
                                 {mun.municipio}
                             </div>
@@ -262,17 +277,53 @@ export default function ListarSegunCategorias() {
                         variant="inverted"
                     />
                 </div>
+                <div className='w-60'>
+                    <MultiSelect 
+                        options={estados}
+                        onValueChange={handleEstadoChange}
+                        placeholder='Estados'
+                        maxCount={2}
+                        variant="inverted"
+                    />
+                </div>
                 <Button variant="outline" size="lg" className='cursor-pointer' onClick={handleClickSearch}>
                     <Search /> Consultar
                 </Button>
+                <Button variant="outline" size="lg" className='cursor-pointer' onClick={generarReporte}>
+                    {stateReporte ? 
+                            <><Loader2 className='animate-spin' /> Generando Reporte</> :
+                            <><File /> Generar Reporte</>
+                    }
+                </Button>
             </div>
             <DataTable columns={columns(handleVerArchivosClick)} data={lugaresPoblados} />
-            <DownloadButton 
-                departamento={departamentoSelected?.nombre} 
-                municipio={municipioSelected?.municipio} 
-                fecha={''}
-            />
         </div>
+        <Dialog open={openDialogReport} onOpenChange={() => { setOpenDialogReport(false) }}>
+            <DialogContent className='px-0 py-0 h-[90vh] sm:max-w-[90vw] w-[90vw] overflow-hidden'>
+                <DialogTitle className='sr-only'>Reporte Lugares Poblados</DialogTitle>
+                <DialogDescription className='sr-only'>archivos del lugar poblado</DialogDescription>
+                <div className="w-full h-full">
+                    <div className='h-[50px] w-full px-5 flex items-center'>
+                        Reporte de Lugares Poblados: {municipioSelected?.municipio} - {departamentoSelected?.nombre}
+                    </div>
+                    <main className='flex h-[calc(100%-50px)] flex-1 flex-col overflow-hidden px-5 pb-5'>
+                        {openDialogReport && 
+                            <PDFViewer className='w-full h-full'>
+                                <ReporteLugaresPoblados 
+                                    departamento={departamentoSelected?.nombre}
+                                    municipio={municipioSelected?.municipio}
+                                    fecha={fecha}
+                                    estados={estadosSelected}
+                                    detalleLugaresPoblados={lugaresPoblados}
+                                    totalesPorCategoria={totalesPorCategoria}
+                                    situadoConstitucional={situadoConstitucional}
+                                    UltimaActualizacion={UltimaActualizacion} />
+                            </PDFViewer>
+                        }
+                    </main>
+                </div>
+            </DialogContent>
+        </Dialog>
         <Dialog open={dialogIsOpen} onOpenChange={() => { setDialogIsOpen(!dialogIsOpen) }}>
             <DialogContent className='px-0 pt-5 h-[90vh] sm:max-w-[90vw] w-[90vw] overflow-hidden'>
             <DialogTitle className='px-5'>{dialogTitle}</DialogTitle>

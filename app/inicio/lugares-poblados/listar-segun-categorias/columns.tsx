@@ -33,6 +33,23 @@ export type ArchivoLugarPoblado = {
   Observacion: string
 }
 
+export type TotalesPorCategoria = {
+  Categoria: string
+  Totales: number
+}
+
+export type SituadoConstitucional = {
+  Aldeas: number
+  Caserios: number
+  Total: number
+}
+
+export type UltimaActualizacion = {
+  UsuarioCreacion: string
+  UsuarioModificacion: string
+  FechaTransaccion: string
+}
+
 export const columns = (handleVerArchivosClick: (idLugPob: number) => void): ColumnDef<DetalleLugarPoblado>[] => [
   {
     accessorKey: "ID_Departamento",

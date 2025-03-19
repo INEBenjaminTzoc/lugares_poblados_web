@@ -5,6 +5,8 @@ import INE from '@/public/img/INE.png'
 import TextoINE from '@/public/img/TextoINE.png'
 import RLP from '@/public/img/rlp.png'
 import React from 'react'
+import { DetalleLugarPoblado, SituadoConstitucional, TotalesPorCategoria, UltimaActualizacion } from '@/app/inicio/lugares-poblados/listar-segun-categorias/columns'
+import moment from 'moment'
 
 const data = {
   title: 'Table title',
@@ -20,14 +22,41 @@ const data = {
   footer: 'footer'
 }
 
+const criterios: { [key: number]: string } = {
+  1: "Lugares poblados que se encuentran en base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional de Población y VI de habitación de 2002) y en certificación enviada por la municipalidad en el presente año, con categoría igual, entiéndase coincidencias.",
+  2: "Lugares poblados que se encuentran en base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional de Población y VI de habitación de 2002) pero con categoría distinta de la reportada en certificación enviada por la municipalidad en el presente año, entiéndase entre aldea y caserío o viceversa.",
+  3: "Lugares poblados que se encuentran en base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional de Población y VI de habitación de 2002), con categoría diferente a Aldea y Caserío de la reportada en certificación enviada por la municipalidad en el presente año.",
+  4: "Lugares poblados que no obran en base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional de Población y VI de habitación de 2002) pero si los reporta la municipalidad en certificación enviada en el presente año, entiéndase que técnicamente se reconocerá como un lugar poblado nuevo.",
+  5: "Lugares poblados que se encuentran en base de datos del Instituto Nacional de Estadística correspondientes al XI Censo Nacional de Población y VI de habitación de 2002. Se resaltan los Caseríos que no son reconocidos por la municipalidad en el acta remitida en el presente año.",
+  6: "Lugares poblados avalados con actas y/o acuerdos del Concejo Municipal, previos a las modificaciones del código municipal, que entraron en vigencia en el año 2010, en donde indica nombre, categoría y otras referencias.",
+  7: "Otros Casos. Son casos aislados que no encajan en ningún aspecto legal o técnico o que se debe aclarar su situación, el cual no debe sumar en el conteo de aldeas y caseríos.",
+  8: "Lugares poblados (Caseríos y Aldeas) cuya elevación de categoría es avalada por los dictámenes favorables de la Oficina Municipal de Planificación, del Instituto Nacional de Estadística y del Instituto de Fomento Municipal como lo establece el Artículo 22 del Código Municipal.",
+  9: "Municipalidad con caso especial. Lugares poblados (Caseríos y Aldeas), cuyo dato estadístico es tomado por parte de las autoridades del INE cuya fuente es: XII Censo Nacional de Población de Población y VII de Vivienda año 2018.",
+  10: "Todos los lugares poblados que son reportados en certificación histórica aun No resuelta por el INE, por inconsistencias no definidas (Caso Especial San Francisco El Alto).",
+};
+
 export type IData = {
   departamento?: string
   municipio?: string
   fecha?: string
+  estados?: number[]
+  detalleLugaresPoblados: DetalleLugarPoblado[]
+  totalesPorCategoria: TotalesPorCategoria[]
+  situadoConstitucional: SituadoConstitucional[]
+  UltimaActualizacion: UltimaActualizacion[]
 }
 
-const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
-    <Document>
+const ReporteLugaresPoblados = (data: IData) => {
+  const groupedDataByEstado = data.detalleLugaresPoblados?.reduce((acc, item) => {
+    if (!acc[item.Estado]) {
+      acc[item.Estado] = [];
+    }
+    acc[item.Estado].push(item);
+    return acc;
+  }, {} as {[key: number]: DetalleLugarPoblado[] });
+
+  return (
+    <Document title={`Reporte de Lugares Poblados: ${data.municipio} - ${data.departamento}`} >
       <Page size="LETTER" style={styles.page}>
         <View style={styles.pageHeader} fixed>
           <Image src={INE.src} style={styles.logoINE}></Image>
@@ -36,304 +65,77 @@ const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
         </View>
         <View style={styles.section}>
           <Text style={styles.subtitle}>
-            <Text style={{fontWeight: 'bold'}}>Departamento:</Text> {departamento}
+            <Text style={{fontWeight: 'bold'}}>Departamento:</Text> {data.departamento}
           </Text>
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <Text style={{width: '50%'}}>
-            <Text style={{fontWeight: 'bold'}}>Municipio:</Text> {municipio}
+            <Text style={{fontWeight: 'bold'}}>Municipio:</Text> {data.municipio}
             </Text>
             <Text style={{textAlign: 'right', fontSize: 10, width: '50%'}}>
-              {fecha}
+              {data.fecha}
             </Text>
           </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 1:</Text> Lugares poblados que se encuentran en 
-            base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional 
-            de Población y VI de habitación de 2002) y en certificación enviada por la municipalidad en 
-            el presente año, con categoría igual, entiéndase coincidencias.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
+          {data.estados?.sort((a, b) => a - b).map((estado) => (
+            <>
+              <View key={estado} style={{paddingVertical: 15}}>
+                <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+                  <Text style={{fontWeight: 'bold'}}>CRITERIO {estado}:</Text> {criterios[estado]}
+                </Text>
               </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 2:</Text> Lugares poblados que se encuentran en 
-            base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional 
-            de Población y VI de habitación de 2002) pero con categoría distinta de la reportada en certificación 
-            enviada por la municipalidad en el presente año, entiéndase entre aldea y caserío o viceversa.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 3:</Text> Lugares poblados que se encuentran en 
-            base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional 
-            de Población y VI de habitación de 2002), con categoría diferente a Aldea y Caserío de la 
-            reportada en certificación enviada por la municipalidad en el presente año.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 4:</Text> Lugares poblados que no obran en 
-            base de datos del Instituto Nacional de Estadística (correspondientes al XI Censo Nacional 
-            de Población y VI de habitación de 2002) pero si los reporta la municipalidad en certificación 
-            enviada en el presente año, entiéndase que técnicamente se reconocerá como un lugar poblado nuevo.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 5:</Text> Lugares poblados que se encuentran en 
-            base de datos del Instituto Nacional de Estadística correspondientes al XI Censo Nacional de 
-            Población y VI de habitación de 2002. Se resaltan los Caseríos que no son reconocidos por la 
-            municipalidad en el acta remitida en el presente año.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 6:</Text> Lugares poblados avalados con actas y/o 
-            acuerdos del Concejo Municipal, previos a las modificaciones del código municipal, que entraron 
-            en vigencia en el año 2010, en donde indica nombre, categoria y otras referencias.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 7:</Text> Otros Casos. Son casos aislados que no encaja 
-            en ningún aspecto legal o técnico o que se debe aclarar su situación, el cual no debe sumar en 
-            el conteo de aldeas y caseríos.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 8:</Text> Lugares poblados (Caseríos y Aldeas) cuya 
-            elevación de categoría es avalada por los dictámenes favorables de la Oficina Municipal de 
-            Planificación, del Instituto Nacional de Estadística y del Instituto de Fomento Municipal como lo 
-            establece el Artículo 22 del Código Municipal.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 9:</Text> Municipalidad con caso especial. 
-            Lugares poblados (Caserios y Aldeas), cuyo dato estadístico es tomado por parte de las autoridades 
-            del INE cuya fuente es: XII Censo Nacional de Población de Población y VII de Vivienda año 2018.
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <View style={{paddingVertical: 15}}>
-            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>CRITERIO 10:</Text> Todos los lugares poblados que son reportados 
-            en certificación histórica aun No resuelta por el INE, por inconsistencias no definidas 
-            (Caso Especial San Fransisco El Alto).
-            </Text>
-          </View>
-          <View style={{width: '100%', height: 'auto'}}>
-            <View style={styles.table}> 
-              <View style={styles.tableRow}>
-                {data.headers.map((header, index) => (
-                  <View key={index} style={styles[`tableHeader${100 / data.headers.length}`]}>
-                    <Text style={styles.tableCell}>{header}</Text>
-                  </View>
-                ))}
-              </View>
-              {data.rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.tableRow}>
-                  {row.map((cell, cellIndex) => (
-                    <View key={cellIndex} style={styles[`tableRow${100 / data.headers.length}`]}>
-                      <Text style={styles.tableCell}>{cell}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </View>
-          </View>
 
-          <View style={{paddingVertical: 15}}>
+              {groupedDataByEstado[estado]?.length > 0 ? (
+                <View style={{width: '100%', height: 'auto'}}>
+                  <View style={styles.table}>
+                    {/* Encabezados de la tabla */}
+                    <View style={styles.tableRow}>
+                      <View style={styles.tableHeader10}>
+                        <Text style={styles.tableCell}>No.</Text>
+                      </View>
+                      <View style={styles.tableHeader30}>
+                        <Text style={styles.tableCell}>Lugar Poblado</Text>
+                      </View>
+                      <View style={styles.tableHeader30}>
+                        <Text style={styles.tableCell}>Pertenencia</Text>
+                      </View>
+                      <View style={styles.tableHeader20}>
+                        <Text style={styles.tableCell}>Categoría</Text>
+                      </View>
+                      <View style={styles.tableHeader10}>
+                        <Text style={styles.tableCell}>Criterio</Text>
+                      </View>
+                    </View>
+
+                    {/* Filas de la tabla */}
+                    {groupedDataByEstado?.[estado]?.map((registro, index) => (
+                      <View key={index} style={styles.tableRow}>
+                        <View style={styles.tableRow10}>
+                          <Text style={styles.tableCell}>{index + 1}</Text>
+                        </View>
+                        <View style={styles.tableRow30}>
+                          <Text style={styles.tableCell}>{registro.Nombre}</Text>
+                        </View>
+                        <View style={styles.tableRow30}>
+                          <Text style={styles.tableCell}>{registro.Pertenencia}</Text>
+                        </View>
+                        <View style={styles.tableRow20}>
+                          <Text style={styles.tableCell}>{registro.Categoria}</Text>
+                        </View>
+                        <View style={styles.tableRow10}>
+                          <Text style={styles.tableCell}>{registro.Estado}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ) : (
+                <Text style={{ fontSize: 10, fontStyle: "italic", fontWeight: 'bold', marginTop: 10 }}>
+                  No existen datos en criterio {estado}.
+                </Text>
+              )}
+            </>
+          ))}
+
+          <View style={{paddingTop: 15}}>
             <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
             <Text style={{fontWeight: 'bold'}}>NOTA:</Text> Los lugares poblados que tengan criterio 
             tres y cuatro para regular su categoría y reconocerla de manera oficial, la municipalidad 
@@ -363,17 +165,19 @@ const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
                     <Text style={styles.tableCell}>Total</Text>
                   </View>
               </View>
-              <View style={styles.tableRow}>
+              {data.totalesPorCategoria.map((registro, index) => (
+                <View key={index} style={styles.tableRow}>
                   <View style={styles.tableRow30}>
-                    <Text style={styles.tableCell}>1</Text>
+                    <Text style={styles.tableCell}>{index + 1}</Text>
                   </View>
                   <View style={styles.tableRow35}>
-                    <Text style={styles.tableCell}>CIUDAD</Text>
+                    <Text style={styles.tableCell}>{registro.Categoria}</Text>
                   </View>
                   <View style={styles.tableRow35}>
-                    <Text style={styles.tableCell}>49</Text>
+                    <Text style={styles.tableCell}>{registro.Totales}</Text>
                   </View>
-              </View>
+                </View>
+              ))}
             </View>
           </View>
           
@@ -395,23 +199,37 @@ const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
                     <Text style={styles.tableCell}>Total</Text>
                   </View>
               </View>
-              <View style={styles.tableRow}>
+              {data.situadoConstitucional.map((registro, index) => (
+                <View key={index} style={styles.tableRow}>
                   <View style={styles.tableRow30}>
-                    <Text style={styles.tableCell}>28</Text>
+                    <Text style={styles.tableCell}>{registro.Aldeas}</Text>
                   </View>
                   <View style={styles.tableRow35}>
-                    <Text style={styles.tableCell}>118</Text>
+                    <Text style={styles.tableCell}>{registro.Caserios}</Text>
                   </View>
                   <View style={styles.tableRow35}>
-                    <Text style={styles.tableCell}>146</Text>
+                    <Text style={styles.tableCell}>{registro.Total}</Text>
                   </View>
-              </View>
+                </View>
+              ))}
             </View>
           </View>
 
           <View style={{paddingVertical: 15}}>
             <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
-            <Text style={{fontWeight: 'bold'}}>ULTIMA ACTUALIZACIÓN TÉCNICO ANALISTA:</Text>
+              <Text style={{fontWeight: 'bold'}}>ULTIMA ACTUALIZACIÓN TÉCNICO ANALISTA:</Text>
+            </Text>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+              <Text>{data.UltimaActualizacion[0].UsuarioModificacion !== null ? 
+                      data.UltimaActualizacion[0].UsuarioModificacion : data.UltimaActualizacion[0].UsuarioCreacion}</Text>
+            </Text>
+          </View>
+          <View>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+              <Text style={{fontWeight: 'bold'}}>FECHA ULTIMA ACTUALIZACIÓN:</Text>
+            </Text>
+            <Text style={{fontSize: 11.5, lineHeight: 1.5}}>
+              <Text>{moment(data.UltimaActualizacion[0].FechaTransaccion).format('DD/MM/YYYY')}</Text>
             </Text>
           </View>
         </View>
@@ -429,7 +247,8 @@ const ReporteLugaresPoblados = ({departamento, municipio, fecha}: IData) => (
         </View>
       </Page>
     </Document>
-)
+  )
+}
 
 export default ReporteLugaresPoblados;
 
@@ -558,7 +377,7 @@ const styles: { [key: string]: any } = StyleSheet.create({
   },
   tableCell: { 
     margin: "auto", 
-    marginTop: 5, 
+    marginBottom: 5, 
     fontSize: 9
   },
   pageFooter: {
@@ -571,15 +390,3 @@ const styles: { [key: string]: any } = StyleSheet.create({
     paddingTop: 15
   }
 });
-
-export const reporte = (
-  <Document>
-    <Page size="LETTER" style={styles.page}>
-      <View style={styles.pageHeader} fixed>
-        <Image src={INE.src} style={styles.logoINE}></Image>
-        <Image src={TextoINE.src} style={styles.textoINE}></Image>
-        <Image src={INE.src} style={styles.logoINE}></Image>
-      </View>
-    </Page>
-  </Document>
-)
