@@ -75,6 +75,12 @@ export default function ListarSegunCategorias() {
             return;
           }
           const categorias: { idcategoria: number, etiqueta: string }[] = resCategorias.data.categorias;
+          setCategorias(
+            categorias.map((cat) => ({
+                value: cat.idcategoria.toString(),
+                label: cat.etiqueta
+            }))
+          )
         } 
         catch (error) 
         {
