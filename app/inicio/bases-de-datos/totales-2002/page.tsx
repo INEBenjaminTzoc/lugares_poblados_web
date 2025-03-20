@@ -9,7 +9,7 @@ import { Departamento } from '../../departamentos/columns';
 import { Municipio } from '../../municipios/listar-municipios/columns';
 import { MultiSelect } from '@/components/multi-select';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 
 export default function Totales2002() {
@@ -20,6 +20,8 @@ export default function Totales2002() {
   const [ municipiosSelected, setMunicipiosSelected ] = useState<number[]>([]);
 
   const [aldeasCaserios2002, setAldeasCaserios2002] = useState<AldeasCaserios2002[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   useEffect(() => {
     const getDepartamentos = async () => {
@@ -83,6 +85,7 @@ export default function Totales2002() {
   }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     try {
         setAldeasCaserios2002([]);
         const res = await axios
@@ -101,6 +104,8 @@ export default function Totales2002() {
     {
         toast.error(`Error al obtener detalle: ${error}`);
         setAldeasCaserios2002([]);
+    } finally {
+      setLoadingData(false);
     }
   }
   
@@ -116,7 +121,7 @@ export default function Totales2002() {
                   , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <div className='w-full flex flex-row mt-4 gap-x-3'>
+            <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
                 <div className='w-60'>
                     <MultiSelect 
                         options={departamentos}
@@ -135,8 +140,10 @@ export default function Totales2002() {
                         variant="inverted"
                     />
                 </div>
-                <Button variant="outline" className='cursor-pointer' size="lg" onClick={handleClickSearch}>
-                    <Search /> Consultar
+                <Button variant="outline" className='cursor-pointer' disabled={loadingData} size="lg" onClick={handleClickSearch}>
+                  {loadingData ? 
+                      <><><Loader2 className='animate-spin' /> Consultando</></> :
+                      <><Search /> Consultar</>}
                 </Button>
             </div>
             <DataTable columns={columnsAldeasCaserios2002} data={aldeasCaserios2002} />

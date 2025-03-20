@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils'
 import axios from 'axios'
 import { addDays, format } from 'date-fns'
-import { CalendarIcon, Search } from 'lucide-react'
+import { CalendarIcon, Loader2, Search } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
@@ -16,12 +16,15 @@ import moment from 'moment'
 
 export default function ListarBitacoraFechas() {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2025, 0, 20),
-    to: addDays(new Date(2025, 0, 20), 20),
+    from: new Date(2018, 1, 1),
+    to: addDays(new Date(2020, 1, 1), 20),
   });
   const [bitacoraFechas, setBitacoraFechas] = useState<Bitacora[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
   
   const handleClickSearch = async () => {
+    setLoadingData(true);
     try {
       if (date?.from && date?.to) {
         const formattedFrom = format(date.from, 'yyyy-MM-dd');
@@ -32,6 +35,7 @@ export default function ListarBitacoraFechas() {
           { fechaInicio: formattedFrom, 
             fechaFin: formattedTo
           });
+          console.log(res);
         if (res.data.code !== 200) {
             toast.error("Error al obtener detalle");
             return;
@@ -49,6 +53,8 @@ export default function ListarBitacoraFechas() {
     {
       toast.error(`Error al obtener detalle: ${error}`);
       setBitacoraFechas([]);
+    } finally {
+      setLoadingData(false);
     }
   }
 
@@ -58,7 +64,7 @@ export default function ListarBitacoraFechas() {
         <h2 className="text-center scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             Bitácora por Rango de Fechas
         </h2>
-        <div className='w-full flex flex-row mt-4 gap-x-3'>
+        <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
           <div className='w-auto'>
             <Popover>
               <PopoverTrigger asChild>
@@ -92,8 +98,10 @@ export default function ListarBitacoraFechas() {
               </PopoverContent>
             </Popover>
           </div>
-          <Button variant="outline" size="lg" className='cursor-pointer' onClick={handleClickSearch}>
-              <Search /> Consultar
+          <Button variant="outline" size="lg" className='cursor-pointer' disabled={loadingData} onClick={handleClickSearch}>
+            {loadingData ? 
+              <><><Loader2 className='animate-spin' /> Consultando</></> :
+              <><Search /> Consultar</>}
           </Button>
         </div>
         <DataTable columns={columnsBit} data={bitacoraFechas} />

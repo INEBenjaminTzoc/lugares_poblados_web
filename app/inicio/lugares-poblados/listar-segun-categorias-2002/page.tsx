@@ -8,7 +8,7 @@ import { Departamento } from '../../departamentos/columns';
 import { MultiSelect } from '@/components/multi-select';
 import { Municipio } from '../../municipios/listar-municipios/columns';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { columns, DetalleLugarPoblado2002 } from './columns';
 import { DataTable } from '@/components/data-table';
 
@@ -21,6 +21,8 @@ export default function ListarSegunCategorias2002() {
   const [ municipiosSelected, setMunicipiosSelected ] = useState<number[]>([]);
   //----------------------LISTA DE DETALLE LUGARES POBLADOS------------------------//
   const [ lugaresPoblados, setLugaresPoblados ] = useState<DetalleLugarPoblado2002[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   useEffect(() => {
     const getDepartamentos = async () => {
@@ -85,19 +87,22 @@ export default function ListarSegunCategorias2002() {
   }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     const res = await axios
-        .post('/api/lugares-poblados/listar-segun-categorias-2002', 
-          { 
-            departamento: departamentosSelected, 
-            municipio: municipiosSelected
-          }
-        );
+    .post('/api/lugares-poblados/listar-segun-categorias-2002', 
+      { 
+        departamento: departamentosSelected, 
+        municipio: municipiosSelected
+      }
+    );
     if (res.data.code !== 200) {
-        toast.error("Error al obtener detalle");
-        return;
+      toast.error("Error al obtener detalle");
+      setLoadingData(false);
+      return;
     }
     const detalleLugaresPoblados: DetalleLugarPoblado2002[] = res.data.lugaresPoblados;
     setLugaresPoblados(detalleLugaresPoblados);
+    setLoadingData(false);
   }
 
   return (
@@ -112,7 +117,7 @@ export default function ListarSegunCategorias2002() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <div className="w-full flex flex-row mt-4 gap-x-3">
+            <div className="w-full flex flex-row flex-wrap mt-4 gap-3">
                 <div className="w-60">
                     <MultiSelect 
                       options={departamentos}
@@ -131,8 +136,10 @@ export default function ListarSegunCategorias2002() {
                     variant="inverted"
                   />
                 </div>
-                <Button variant="outline" className='cursor-pointer' size="lg" onClick={handleClickSearch}>
-                    <Search /> Consultar
+                <Button variant="outline" className='cursor-pointer' disabled={loadingData} size="lg" onClick={handleClickSearch}>
+                  {loadingData ? 
+                    <><><Loader2 className='animate-spin' /> Consultando</></> :
+                    <><Search /> Consultar</>}
                 </Button>
             </div>
             <DataTable columns={columns} data={lugaresPoblados} />

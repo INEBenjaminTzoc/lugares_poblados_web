@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export function NavUser({
   user,
@@ -41,10 +42,14 @@ export function NavUser({
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
 
-  const handleClickLogout = () => {
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('tipo_usuario');
-    router.push("/login");
+  const handleClickLogout = async () => {
+    try {
+      await axios.get('/api/logout');
+      localStorage.clear();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   }
 
   return (

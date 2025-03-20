@@ -2,7 +2,7 @@ import pool from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-    const { departamento, municipio, estado } = await request.json();
+    const { departamento, municipio, estado, categoria } = await request.json();
     
     try {
         const [rows] = await pool.execute(`
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
             WHERE d.id IN (${departamento}) 
             AND m.id IN (${municipio}) 
             AND lp.cod_estado in (${estado})
+            AND cat.idcategoria IN (${categoria})
             ORDER BY lp.cod_categoria, lp.cod_estado, lp.nombre ASC    
         `);
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
             WHERE d.id IN (${departamento}) 
             and m.id IN (${municipio}) 
             and lp.cod_estado in (${estado})
-            and cat.idcategoria in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37) 
+            and cat.idcategoria in (${categoria}) 
             GROUP BY lp.cod_categoria
             ORDER BY lp.cod_categoria, lp.cod_estado, lp.nombre ASC    
         `);

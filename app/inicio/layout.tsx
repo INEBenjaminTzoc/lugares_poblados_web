@@ -5,7 +5,8 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
-import React from "react";
+import router from "next/router";
+import React, { useEffect } from "react";
 
 export default function DashboardLayout({
     children,

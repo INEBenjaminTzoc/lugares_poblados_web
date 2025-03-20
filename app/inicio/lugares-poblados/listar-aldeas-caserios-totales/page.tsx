@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { multiSelectTemplate } from '@/lib/multiselect.interface';
 import axios from 'axios';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { generateColumns, MostrarAldeasCaserios } from './columns';
@@ -21,6 +21,8 @@ export default function AldeasCaseriosTotales() {
   //------------------------LISTA DE DETALLE LUGARES POBLADOS---------------------------//
   const [ lugaresPoblados, setLugaresPoblados ] = useState<MostrarAldeasCaserios[]>([]);
   const [ columns, setColumns ] = useState<ColumnDef<MostrarAldeasCaserios>[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
   
   useEffect(() => {
     const getEstados = async () => {
@@ -58,6 +60,7 @@ export default function AldeasCaseriosTotales() {
   }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     const res = await axios
         .post('/api/lugares-poblados/detalle-aldeas-caserios', 
           { 
@@ -65,6 +68,7 @@ export default function AldeasCaseriosTotales() {
             estados: estadosSelected });
     if (res.data.code !== 200) {
         toast.error("Error al obtener detalle");
+        setLoadingData(false);
         return;
     }
     let lugaresPoblados: MostrarAldeasCaserios[] = [];
@@ -73,6 +77,7 @@ export default function AldeasCaseriosTotales() {
     const columns = generateColumns(lugaresPoblados) as ColumnDef<MostrarAldeasCaserios>[];
     setColumns(columns);
     setLugaresPoblados(lugaresPoblados);
+    setLoadingData(false);
   }
 
   return (
@@ -86,7 +91,7 @@ export default function AldeasCaseriosTotales() {
                     Listado de aldeas y caseríos totales por municipio.
                 </p>
             </div>
-            <div className="w-full flex flex-row mt-4 gap-x-3">
+            <div className="w-full flex flex-row flex-wrap mt-4 gap-3">
                 <div className="w-60">
                     <Select onValueChange={handleOptionChange}>
                         <SelectTrigger className='w-60'>
@@ -108,8 +113,10 @@ export default function AldeasCaseriosTotales() {
                       variant="inverted"
                     />
                 </div>
-                <Button variant="outline" size="icon" onClick={handleClickSearch}>
-                    <Search />
+                <Button variant="outline" size="lg" disabled={loadingData} onClick={handleClickSearch}>
+                    {loadingData ? 
+                        <><><Loader2 className='animate-spin' /> Consultando</></> :
+                        <><Search /> Consultar</>}
                 </Button>
             </div>
             <DataTable columns={columns} data={lugaresPoblados} />

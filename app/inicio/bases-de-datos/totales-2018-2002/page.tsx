@@ -8,7 +8,7 @@ import { Departamento } from '../../departamentos/columns'
 import { MultiSelect } from '@/components/multi-select'
 import { Municipio } from '../../municipios/listar-municipios/columns'
 import { Button } from '@/components/ui/button'
-import { Search } from 'lucide-react'
+import { Loader2, Search } from 'lucide-react'
 import { AldeasCaserios2002, AldeasCaserios2018, columnsAldeasCaserios2002, columnsAldeasCaserios2018, columnsTotalesCombinados, TotalesCombinados } from './columns'
 import { DataTable } from '@/components/data-table'
 
@@ -25,6 +25,8 @@ export default function Totales20182002() {
   const [aldeasCaserios2018, setAldeasCaserios2018] = useState<AldeasCaserios2018[]>([]);
   const [aldeasCaserios2002, setAldeasCaserios2002] = useState<AldeasCaserios2002[]>([]);
   const [totalesCombinados, setTotalesCombinados] = useState<TotalesCombinados[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   const EstadosMunicipio: multiSelectTemplate[] = [
       { value: 'T', label: 'Terminado' },
@@ -126,6 +128,7 @@ export default function Totales20182002() {
   };
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     try {
         const res = await axios
             .post('/api/bases-de-datos/totales-2018-2002', 
@@ -153,6 +156,8 @@ export default function Totales20182002() {
         setAldeasCaserios2018([]);
         setAldeasCaserios2002([]);
         setTotalesCombinados([]);
+    } finally {
+      setLoadingData(false);
     }
   }
 
@@ -168,7 +173,7 @@ export default function Totales20182002() {
                   , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <div className='w-full flex flex-row mt-4 gap-x-3'>
+            <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
                 <div className='w-60'>
                   <MultiSelect 
                     options={departamentos}
@@ -205,8 +210,10 @@ export default function Totales20182002() {
                     variant="inverted"
                   />
                 </div>
-                <Button variant="outline" size="lg" onClick={handleClickSearch}>
-                    <Search /> Consultar
+                <Button variant="outline" size="lg" disabled={loadingData} onClick={handleClickSearch}>
+                  {loadingData ? 
+                      <><><Loader2 className='animate-spin' /> Consultando</></> :
+                      <><Search /> Consultar</>}
                 </Button>
             </div>
             <DataTable columns={columnsAldeasCaserios2018} data={aldeasCaserios2018} />

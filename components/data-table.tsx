@@ -31,14 +31,17 @@ import { Input } from "./ui/input"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  onRowSelectionChange?: (selectedRows: TData[]) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = React.useState({})
     const [globalFilter, setGlobalFilter] = React.useState<any>([]);
   const table = useReactTable({
     data,
@@ -50,20 +53,29 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: 'includesString',
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnVisibility,
+      rowSelection,
       globalFilter
     },
     onGlobalFilterChange: setGlobalFilter
   })
+
+  React.useEffect(() => {
+    if (onRowSelectionChange) {
+      const selectedRows = Object.keys(rowSelection).map((rowId) => data[parseInt(rowId)]);
+      onRowSelectionChange(selectedRows);
+    }
+  }, [rowSelection, data]);
 
   const columnHeaders = columns.map(col => String(col.meta));
   const dataObject = data;
 
   return (
     <div>
-        <div className="flex items-center py-4 gap-x-3">
+        <div className="flex flex-wrap items-center py-4 gap-3">
           <Input 
             type="text" 
             value={globalFilter} 

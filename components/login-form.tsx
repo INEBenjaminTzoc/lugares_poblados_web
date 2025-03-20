@@ -23,18 +23,16 @@ export function LoginForm({
     e.preventDefault();
     try {
       const response = await axios.post('/api/login', {user, password});
-
       if (response.data.code !== 200) {
         toast.error("Error al iniciar sesión");
         return;
       }
 
       toast.success("Inicio de sesión exitoso");
-      localStorage.setItem('usuario', response.data.userData.personal_nombre);
-      localStorage.setItem('tipo_usuario', response.data.userData.tipo_usuario);
+      localStorage.setItem('usuario', response.data.userData.Nombre);
+      localStorage.setItem('tipo_usuario', response.data.userData.Tipo);
 
       router.push("/inicio");
-
     } 
     catch (error: Error | any) 
     {

@@ -14,7 +14,6 @@ export default function ListarTodosLugaresPoblados2018() {
         try {
             const res = await axios.get('/api/lugares-poblados/listar-todos-lugares-poblados-2018');
 
-            console.log(res);
             if (res.data.code !== 200) {
                 toast.error("Error al obtener detalle");
                 return;

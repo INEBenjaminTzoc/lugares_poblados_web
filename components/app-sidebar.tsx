@@ -23,6 +23,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Image from "next/image"
+import INE from "@/public/img/INE.png"
 
 const data = {
   navMain: [
@@ -122,13 +123,11 @@ const data = {
     },
     {
       title: "Multiples Observaciones",
-      url: "#",
+      url: "/inicio/multiples-observaciones",
       icon: TableProperties,
     },
   ]
 }
-
-import INE from "@/public/img/INE.png"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [usuario, setUsuario] = React.useState<string>("");
@@ -139,6 +138,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setTipoUsuario(String(localStorage.getItem('tipo_usuario')));
   }, [])
 
+  const filteredNavMain = 
+    tipoUsuario === "DIGITALIZADOR"
+      ? [
+        {
+          title: "Municipios",
+          url: "#",
+          icon: MapPinHouse,
+          items: [
+            {
+              title: "Listar Municipios",
+              url: "/inicio/municipios/listar-municipios",
+            },
+          ],
+        },
+        {
+          title: "Lugares Poblados",
+          url: "#",
+          icon: House,
+          items: [
+            {
+              title: "Listar Según Categorías",
+              url: "/inicio/lugares-poblados/listar-segun-categorias",
+            },
+            {
+              title: "Listar Según Categorías 2002",
+              url: "/inicio/lugares-poblados/listar-segun-categorias-2002",
+            },
+            {
+              title: "Listar Aldeas y Caserios Totales",
+              url: "/inicio/lugares-poblados/listar-aldeas-caserios-totales",
+            },
+          ],
+        },
+      ]
+    : data.navMain;
+
+  const filteredNavSecondary = 
+    tipoUsuario === "DIGITALIZADOR"
+      ? [
+        {
+          title: "Multiples Observaciones",
+          url: "/inicio/multiples-observaciones",
+          icon: TableProperties,
+        },
+      ]
+    : data.navSecondary;
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -146,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
-                  <Image src={INE} alt="INE" width={40} height={40} />
+                  <Image src={INE} alt="INE" className="w-[40px]! h-[36px]!" />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Lugares Poblados</span>
                   <span className="truncate text-xs">Sistema Administrativo</span>
@@ -157,8 +203,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={filteredNavMain} />
+        <NavSecondary items={filteredNavSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{usuario: usuario, tipo_usuario: tipoUsuario}} />

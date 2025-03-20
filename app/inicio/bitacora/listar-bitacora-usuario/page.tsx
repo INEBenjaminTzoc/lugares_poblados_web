@@ -1,12 +1,12 @@
 "use client"
 
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { Bitacora, columnsBit, Usuario } from './columns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import moment from 'moment';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,8 @@ export default function ListarBitacoraUsuario() {
 
   const [bitacoraCreacion, setBitacoraCreacion] = useState<Bitacora[]>([]);
   const [bitacoraModificacion, setBitacoraModificacion] = useState<Bitacora[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   useEffect(() => {
     const getUsuarios = async () => {
@@ -47,6 +49,7 @@ export default function ListarBitacoraUsuario() {
   }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     try {
       const res = await axios
         .post('/api/bitacora/bitacora-usuario-creacion', 
@@ -76,6 +79,8 @@ export default function ListarBitacoraUsuario() {
       toast.error(`Error al obtener detalle: ${error}`);
       setBitacoraCreacion([]);
       setBitacoraModificacion([]);
+    } finally {
+      setLoadingData(false);
     }
   }
 
@@ -85,7 +90,7 @@ export default function ListarBitacoraUsuario() {
         <h2 className="text-center scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             Bitácora por Usuario
         </h2>
-        <div className='w-full flex flex-row mt-4 gap-x-3'>
+        <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
           <div className='w-auto'>
             <Select onValueChange={handleUsuarioSeleccionadoChange}>
                 <SelectTrigger className='w-60'>
@@ -93,7 +98,7 @@ export default function ListarBitacoraUsuario() {
                 </SelectTrigger>
                 <SelectContent className='max-h-[20rem]'>
                   {usuarios && usuarios.length > 0 && usuarios.map((user) => (
-                    <SelectItem value={user.idUsuario.toString()}>
+                    <SelectItem key={user.idUsuario} value={user.idUsuario.toString()}>
                       <div className='flex flex-col'>
                         {user.Nombre}
                         <p className='text-muted-foreground text-xs'>{user.Puesto}</p>
@@ -103,8 +108,10 @@ export default function ListarBitacoraUsuario() {
                 </SelectContent>
             </Select>
           </div>
-          <Button variant="outline" size="lg" className='cursor-pointer' onClick={handleClickSearch}>
-              <Search /> Consultar
+          <Button variant="outline" size="lg" className='cursor-pointer' disabled={loadingData} onClick={handleClickSearch}>
+            {loadingData ? 
+              <><><Loader2 className='animate-spin' /> Consultando</></> :
+              <><Search /> Consultar</>}
           </Button>
         </div>
         <div className="mt-8">

@@ -44,6 +44,8 @@ export default function ListarSegunCategorias() {
   const [openDialogReport, setOpenDialogReport] = useState<boolean>(false);
   const [stateReporte, setStateReporte] = useState<boolean>(false);
   const [fecha, setFecha] = useState<string>("");
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   useEffect(() => {
     const getInitialData = async () => {
@@ -130,16 +132,24 @@ export default function ListarSegunCategorias() {
     const valuesParsed = valuesSelected.map(value => parseInt(value)) as number[];
     setEstadosSelected(valuesParsed);
   }
+  
+  const handleCategoriaChange = (valuesSelected: string[]) => {
+    const valuesParsed = valuesSelected.map(value => parseInt(value)) as number[];
+    setCategoriasSelected(valuesParsed);
+  }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     const res = await axios
         .post('/api/lugares-poblados/listar-segun-categoria', 
           { 
             departamento: departamentoSelected?.id, 
             municipio: municipioSelected?.idMunicipio, 
-            estado: estadosSelected });
+            estado: estadosSelected,
+            categoria: categoriasSelected });
     if (res.data.code !== 200) {
         toast.error("Error al obtener detalle");
+        setLoadingData(false);
         return;
     }
     const detalleLugaresPoblados: DetalleLugarPoblado[] = res.data.lugaresPoblados;
@@ -150,6 +160,7 @@ export default function ListarSegunCategorias() {
     setSituadoConstitucional(situadoConstitucional);
     const ultimaModificacion: UltimaActualizacion[] = res.data.ultimaModificacion;
     setUltimaActualizacion(ultimaModificacion);
+    setLoadingData(false);
   }
 
   //----------------------------MANEJO DE ARCHIVOS--------------------------//
@@ -241,7 +252,7 @@ export default function ListarSegunCategorias() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <div className='w-full flex flex-row mt-4 gap-x-3'>
+            <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
                 <div className='w-auto'>
                     <Select onValueChange={handleDepartamentoSeleccionadoChange}>
                         <SelectTrigger className='w-60'>
@@ -281,21 +292,24 @@ export default function ListarSegunCategorias() {
                         placeholder='Estados'
                         maxCount={2}
                         variant="inverted"
+                        className='min-w-60'
                     />
                 </div>
                 <div className='w-60'>
                     <MultiSelect 
-                        options={estados}
-                        onValueChange={handleEstadoChange}
-                        placeholder='Estados'
+                        options={categorias}
+                        onValueChange={handleCategoriaChange}
+                        placeholder='Categorías'
                         maxCount={2}
                         variant="inverted"
                     />
                 </div>
-                <Button variant="outline" size="lg" className='cursor-pointer' onClick={handleClickSearch}>
-                    <Search /> Consultar
+                <Button variant="outline" size="lg" className='cursor-pointer' disabled={stateReporte || loadingData} onClick={handleClickSearch}>
+                    {loadingData ? 
+                        <><><Loader2 className='animate-spin' /> Consultando</></> :
+                        <><Search /> Consultar</>}
                 </Button>
-                <Button variant="outline" size="lg" className='cursor-pointer' onClick={generarReporte}>
+                <Button variant="outline" size="lg" className='cursor-pointer' disabled={stateReporte || loadingData} onClick={generarReporte}>
                     {stateReporte ? 
                             <><Loader2 className='animate-spin' /> Generando Reporte</> :
                             <><File /> Generar Reporte</>

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Departamento } from '../../departamentos/columns';
 import { MultiSelect } from '@/components/multi-select';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Municipio } from '../../municipios/listar-municipios/columns';
 import { DataTable } from '@/components/data-table';
 import { columns, LugaresPobladosHistorial } from './columns';
@@ -26,6 +26,8 @@ export default function HistorialLugaresPoblados() {
 
   const [ lugaresPobladosHistorial, setLugaresPobladosHistorial ] = useState<LugaresPobladosHistorial[]>([]);
   const [ historiales, setHistoriales ] = useState<{ NombreDepartamento: string, bitacoras: Bitacora[] }[]>([]);
+  //-----------------------LOADERS---------------------------//
+  const [loadingData, setLoadingData] = useState<boolean>(false);
 
   useEffect(() => {
     const getDepartamentos = async () => {
@@ -117,6 +119,7 @@ export default function HistorialLugaresPoblados() {
   }
 
   const handleClickSearch = async () => {
+    setLoadingData(true);
     try {
       const res = await axios
           .post('/api/lugares-poblados/historial-lugares-poblados', 
@@ -135,6 +138,8 @@ export default function HistorialLugaresPoblados() {
     } catch (error) {
       toast.error("Error al obtener lugares poblados");
       setLugaresPobladosHistorial([]);
+    } finally {
+      setLoadingData(false);
     }
   }
 
@@ -171,7 +176,7 @@ export default function HistorialLugaresPoblados() {
                     , con base en el censo nacional de población 2002.
                 </p>
             </div>
-            <div className='w-full flex flex-row mt-4 gap-x-3'>
+            <div className='w-full flex flex-row flex-wrap mt-4 gap-3'>
                 <div className='w-60'>
                     <MultiSelect 
                         options={departamentos}
@@ -199,8 +204,10 @@ export default function HistorialLugaresPoblados() {
                       variant="inverted"
                     />
                 </div>
-                <Button variant="outline" className='cursor-pointer' size="lg" onClick={handleClickSearch}>
-                    <Search /> Consultar
+                <Button variant="outline" className='cursor-pointer' disabled={loadingData} size="lg" onClick={handleClickSearch}>
+                  {loadingData ? 
+                      <><><Loader2 className='animate-spin' /> Consultando</></> :
+                      <><Search /> Consultar</>}
                 </Button>
             </div>
             <div className="mt-8">

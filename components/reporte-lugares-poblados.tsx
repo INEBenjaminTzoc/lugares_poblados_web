@@ -128,7 +128,7 @@ const ReporteLugaresPoblados = (data: IData) => {
                   </View>
                 </View>
               ) : (
-                <Text style={{ fontSize: 10, fontStyle: "italic", fontWeight: 'bold', marginTop: 10 }}>
+                <Text style={{ fontSize: 10, fontStyle: "italic", fontWeight: 'bold'}}>
                   No existen datos en criterio {estado}.
                 </Text>
               )}
