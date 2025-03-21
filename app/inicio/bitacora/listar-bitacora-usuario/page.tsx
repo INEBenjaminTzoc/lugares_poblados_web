@@ -125,10 +125,12 @@ export default function ListarBitacoraUsuario() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value='creacion'>
-              <DataTable columns={columnsBit} data={bitacoraCreacion} />
+              <DataTable columns={columnsBit} data={bitacoraCreacion}
+                fileName={`Bitacora Creados por ${usuarioSeleccionado?.Nombre} ${moment().format('DD-MM-YYYY')}`} />
             </TabsContent>
             <TabsContent value='modificacion'>
-              <DataTable columns={columnsBit} data={bitacoraModificacion} />
+              <DataTable columns={columnsBit} data={bitacoraModificacion}
+                fileName={`Bitacora Modificados por ${usuarioSeleccionado?.Nombre} ${moment().format('DD-MM-YYYY')}`} />
             </TabsContent>
           </Tabs>
         </div>

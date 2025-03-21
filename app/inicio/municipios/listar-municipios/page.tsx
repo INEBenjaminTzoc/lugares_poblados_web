@@ -123,7 +123,7 @@ export default function Municipios() {
                     los cuales cuentan con un alto nivel de autonomía con respecto al gobierno central.
                 </p>
             </div>
-            <DataTable columns={columns(handleVerArchivosClick)} data={municipios} />
+            <DataTable columns={columns(handleVerArchivosClick)} data={municipios} fileName={`Reporte Municipal ${moment().format('DD-MM-YYYY')}`}/>
         </div>
 
         <Dialog open={dialogIsOpen} onOpenChange={() => { setDialogIsOpen(!dialogIsOpen) }}>

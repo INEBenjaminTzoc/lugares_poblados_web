@@ -25,12 +25,14 @@ import React from "react"
 import { DataTablePagination } from "@/components/pagination"
 import { DataTableViewOptions } from "@/components/toggle-column"
 import { CopyToClipboard, ExportAsExcel, ExportAsPdf, PrintDocument } from "@siamf/react-export"
-import { Copy, FileText, Printer, Table2 } from "lucide-react"
+import { Check, Copy, FileText, Printer, Table2 } from "lucide-react"
 import { Input } from "./ui/input"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pdfOrientation?: "portrait" | "landscape"
+  fileName?: string
   onRowSelectionChange?: (selectedRows: TData[]) => void
 }
 
@@ -38,6 +40,8 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onRowSelectionChange,
+  pdfOrientation = "portrait",
+  fileName
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -82,7 +86,7 @@ export function DataTable<TData, TValue>({
             onChange={e => table.setGlobalFilter(String(e.target.value))} 
             placeholder="Búsqueda"
             className="w-70" />
-          <ExportAsExcel data={dataObject} headers={columnHeaders}>
+          <ExportAsExcel data={dataObject} headers={columnHeaders} fileName={fileName}>
             {(props)=> (
               <Button {...props} variant='outline' 
               className="group transition-all duration-500 ease-in-out hover:w-40 cursor-pointer">
@@ -91,7 +95,7 @@ export function DataTable<TData, TValue>({
               </Button>
             )}
           </ExportAsExcel>
-          <ExportAsPdf data={dataObject} headers={columnHeaders}>
+          <ExportAsPdf data={dataObject} headers={columnHeaders} orientation={pdfOrientation} fileName={fileName}>
             {(props)=> (
               <Button {...props} variant='outline' 
               className="group transition-all duration-500 ease-in-out hover:w-40 cursor-pointer">
@@ -100,7 +104,7 @@ export function DataTable<TData, TValue>({
               </Button>
             )}
           </ExportAsPdf>
-          <PrintDocument data={dataObject} headers={columnHeaders}>
+          <PrintDocument data={dataObject} headers={columnHeaders} orientation={pdfOrientation}>
             {(props)=> (
               <Button {...props} variant='outline'
                 className="group transition-all duration-500 ease-in-out hover:w-40 cursor-pointer">
@@ -118,7 +122,12 @@ export function DataTable<TData, TValue>({
               </Button>
             )}
           </CopyToClipboard>
-            <DataTableViewOptions table={table} />
+          <DataTableViewOptions table={table} />
+          {Object.keys(rowSelection).length > 0 && 
+            <Button variant="outline" size="sm" onClick={() => setRowSelection({})}>
+              <Check /> Limpiar Selección
+            </Button>
+          }
         </div>
         <div className="rounded-md border">
             <Table className="overflow-hidden">
@@ -157,7 +166,7 @@ export function DataTable<TData, TValue>({
                 ) : (
                     <TableRow>
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                        Nada por acá...
+                        No existen registros.
                     </TableCell>
                     </TableRow>
                 )}

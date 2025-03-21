@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { generateColumns, MostrarAldeasCaserios } from './columns';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
+import moment from 'moment';
 
 export default function AldeasCaseriosTotales() {
   //------------------------VARIABLES PARA SELECTORES------------------//
@@ -119,7 +120,8 @@ export default function AldeasCaseriosTotales() {
                         <><Search /> Consultar</>}
                 </Button>
             </div>
-            <DataTable columns={columns} data={lugaresPoblados} />
+            <DataTable columns={columns} data={lugaresPoblados}
+                fileName={`Aldeas y Caserios Totales ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

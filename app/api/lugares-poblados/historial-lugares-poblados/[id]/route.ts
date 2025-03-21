@@ -13,15 +13,14 @@ export async function GET(request: Request) {
         const [rows] = await pool.execute(`
             SELECT
                 transaccion AS Accion,
-                cod_categoria AS CodCategoria,
-                cod_estado AS CodEstado,
                 cod_municipio AS CodMupio,
+                nombre AS Nombre,
+                cod_estado AS CodEstado,
+                usuario_c AS UsuarioC,
+                usuario_u AS UsuarioM,
                 horaYfecha_actual AS FechaC,
                 horaYfecha_anterior AS FechaM,
-                nombre AS Nombre,
-                observacion AS Observacion,
-                usuario_c AS UsuarioC,
-                usuario_u AS UsuarioM
+                observacion AS Observacion
             FROM bitacora
             WHERE id = ${parseInt(id)}
         `);

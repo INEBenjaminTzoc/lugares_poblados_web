@@ -6,6 +6,7 @@ import { ComposableMap, Geographies, Geography } from "react-simple-maps"
 import { columns, MunicipioMapa } from './columns';
 import { DataTable } from '@/components/data-table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import moment from 'moment';
 
 export default function MapaInteractivo() {
   const [selectedDepto, setSelectedDepto] = useState(null);
@@ -91,7 +92,8 @@ export default function MapaInteractivo() {
               </TooltipProvider>
             </div>
             <div className='aspect-square w-full'>
-              <DataTable columns={columns} data={municipios} />
+              <DataTable columns={columns} data={municipios} pdfOrientation='landscape'
+                fileName={`Reporte Situado Nacional ${moment().format('DD-MM-YYYY')}`} />
             </div>
           </div>
         </div>

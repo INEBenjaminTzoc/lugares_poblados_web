@@ -5,6 +5,7 @@ import { columns, Departamento } from './columns'
 import axios from 'axios'
 import { DataTable } from '@/components/data-table'
 import { toast } from 'sonner'
+import moment from 'moment'
 
 export default function Departamentos() {
   const [ departamentos, setDepartamentos ] = useState<Departamento[]>([]);
@@ -43,7 +44,8 @@ export default function Departamentos() {
               que se pueden observar en la siguiente tabla.
             </p>
         </div>
-        <DataTable columns={columns} data={departamentos} />
+        <DataTable columns={columns} data={departamentos} 
+          fileName={`Reporte Departamental ${moment().format('DD-MM-YYYY')}`} />
       </div>
     </>
   )

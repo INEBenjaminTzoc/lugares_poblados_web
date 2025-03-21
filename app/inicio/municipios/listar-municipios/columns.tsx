@@ -55,7 +55,7 @@ export const columns = (handleVerArchivosClick: (idMunicipio: number) => void): 
   },
   {
     accessorKey: "acciones",
-    meta: "Acciones",
+    meta: "",
     enableSorting: false,
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Acciones" />

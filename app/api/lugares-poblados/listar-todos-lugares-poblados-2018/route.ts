@@ -5,9 +5,7 @@ export async function GET() {
     try {
         const [todosLugaresPoblados] = await pool.execute(`
             SELECT 
-            d.id as ID_Departamento, 
             d.nombre AS Departamento, 
-            m.id AS ID_Municipio, 
             m.nombre AS Municipio, 
             lp.nombre AS LugarPoblado, 
             cat.etiqueta AS Categoria, 

@@ -18,30 +18,35 @@ export type DetalleLugarPoblado2002 = {
 export const columns: ColumnDef<DetalleLugarPoblado2002>[] = [
   {
     accessorKey: "Departamento",
+    meta: "Departamento",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Departamento" />
     ),
   },
   {
     accessorKey: "Municipio",
+    meta: "Municipio",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Municipio" />
     ),
   },
   {
     accessorKey: "Nombre",
+    meta: "Lugar Poblado",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Lugar Poblado" />
     ),
   },
   {
     accessorKey: "Categoria",
+    meta: "Categoría",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Categoría" />
     ),
   },
   {
     accessorKey: "Observacion",
+    meta: "Observación",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Observación" />
     ),

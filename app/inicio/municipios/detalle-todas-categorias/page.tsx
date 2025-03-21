@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { columns, TotalCategoria } from './columns';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table';
+import moment from 'moment';
 
 export default function DetalleTodasCategorias() {
   const [ todasCategorias, setTodasCategorias ] = useState<TotalCategoria[]>([]);
@@ -41,7 +42,7 @@ export default function DetalleTodasCategorias() {
                     los cuales cuentan con un alto nivel de autonomía con respecto al gobierno central.
                 </p>
             </div>
-            <DataTable columns={columns} data={todasCategorias} />
+            <DataTable columns={columns} data={todasCategorias} fileName={`Reporte Detalle Todas las Categorías ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

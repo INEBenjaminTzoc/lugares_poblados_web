@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2, Search } from 'lucide-react'
 import { AldeasCaserios2002, AldeasCaserios2018, columnsAldeasCaserios2002, columnsAldeasCaserios2018, columnsTotalesCombinados, TotalesCombinados } from './columns'
 import { DataTable } from '@/components/data-table'
+import moment from 'moment'
 
 export default function Totales20182002() {
   const [ departamentos, setDepartamentos ] = useState<multiSelectTemplate[]>([]);
@@ -216,9 +217,12 @@ export default function Totales20182002() {
                       <><Search /> Consultar</>}
                 </Button>
             </div>
-            <DataTable columns={columnsAldeasCaserios2018} data={aldeasCaserios2018} />
-            <DataTable columns={columnsAldeasCaserios2002} data={aldeasCaserios2002} />
-            <DataTable columns={columnsTotalesCombinados} data={totalesCombinados} />
+            <DataTable columns={columnsAldeasCaserios2018} data={aldeasCaserios2018}
+              fileName={`Aldeas y Caserios 2018 ${moment().format('DD-MM-YYYY')}`} />
+            <DataTable columns={columnsAldeasCaserios2002} data={aldeasCaserios2002}
+              fileName={`Aldeas y Caserios 2002 ${moment().format('DD-MM-YYYY')}`} />
+            <DataTable columns={columnsTotalesCombinados} data={totalesCombinados}
+              fileName={`Aldeas y Caserios 2002 - 2018 ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

@@ -11,6 +11,7 @@ import { MultiSelect } from '@/components/multi-select';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
+import moment from 'moment';
 
 export default function Totales2002() {
   const [ departamentos, setDepartamentos ] = useState<multiSelectTemplate[]>([]);
@@ -146,7 +147,8 @@ export default function Totales2002() {
                       <><Search /> Consultar</>}
                 </Button>
             </div>
-            <DataTable columns={columnsAldeasCaserios2002} data={aldeasCaserios2002} />
+            <DataTable columns={columnsAldeasCaserios2002} data={aldeasCaserios2002}
+              fileName={`Totales 2002 ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

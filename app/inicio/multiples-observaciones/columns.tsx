@@ -13,6 +13,7 @@ export type LugarPobladoMunicipio = {
 export const columns: ColumnDef<LugarPobladoMunicipio>[] = [
   {
     id: "select",
+    meta: "ID Lugar Poblado",
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -35,21 +36,21 @@ export const columns: ColumnDef<LugarPobladoMunicipio>[] = [
   },
   {
     accessorKey: "ID",
-    meta: "ID Lugar Poblado",
+    meta: "Lugar Poblado",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID Lugar Poblado" />
     ),
   },
   {
     accessorKey: "LugarPoblado",
-    meta: "Lugar Poblado",
+    meta: "Observación",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Lugar Poblado" />
     ),
   },
   {
     accessorKey: "Observacion",
-    meta: "Observación",
+    meta: "",
     header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Observación" />
     ),

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Search } from 'lucide-react';
 import { columns, DetalleLugarPoblado2002 } from './columns';
 import { DataTable } from '@/components/data-table';
+import moment from 'moment';
 
 export default function ListarSegunCategorias2002() {
   //-----------------------LISTAS PARA SELECTORES------------------------//
@@ -142,7 +143,7 @@ export default function ListarSegunCategorias2002() {
                     <><Search /> Consultar</>}
                 </Button>
             </div>
-            <DataTable columns={columns} data={lugaresPoblados} />
+            <DataTable columns={columns} data={lugaresPoblados} fileName={`Reporte Lugares Poblados Según Categoría - 2002 ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

@@ -12,6 +12,7 @@ import { Loader2, Save, Search } from 'lucide-react';
 import { columns, LugarPobladoMunicipio } from './columns';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import moment from 'moment';
 
 export default function MapaInteractivo() {
     //-----------------------LISTAS PARA SELECTORES------------------------//
@@ -50,6 +51,7 @@ export default function MapaInteractivo() {
     }, [])
 
     const handleDepartamentoSeleccionadoChange = async (value: string) => {
+        setLugaresPoblados([]);
         try {
             setMunicipios([]);
             const depto = departamentos.find(depto => parseInt(depto.id) === parseInt(value));
@@ -196,7 +198,11 @@ export default function MapaInteractivo() {
                     <><Search /> Consultar</>}
             </Button>
           </div>
-          <DataTable columns={columns} data={lugaresPoblados} onRowSelectionChange={handleRowSelectionChange} />
+          <DataTable 
+            columns={columns} 
+            data={lugaresPoblados} 
+            onRowSelectionChange={handleRowSelectionChange}
+            fileName={`Múltiples Observaciones ${moment().format('DD-MM-YYYY')}`} />
           <div className="grid w-full gap-1.5 mt-5 xl:px-[10rem]">
             <Label htmlFor="message-2" className='mb-3'>Nueva Observación:</Label>
             <div className='flex flex-row gap-3'>

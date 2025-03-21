@@ -9,15 +9,13 @@ export async function POST(request: Request) {
         const [bitacoraFechas] = await pool.execute<RowDataPacket[]>(`
             SELECT 
                 transaccion AS Accion,
-                cod_categoria AS CodCategoria,
-                cod_estado AS CodEstado,
                 cod_municipio AS CodMupio,
-                horaYfecha_anterior as FechaC, 
-                horaYfecha_actual as FechaM,
                 nombre as Nombre, 
-                observacion as Observacion,
+                cod_estado AS CodEstado,
                 usuario_c as UsuarioC, 
                 usuario_u as UsuarioM,
+                horaYfecha_anterior as FechaC, 
+                horaYfecha_actual as FechaM
             FROM bitacora 
             WHERE DATE(FechaTransaccion) >= '${fechaInicio}' 
             AND DATE(FechaTransaccion) <= '${fechaFin}'

@@ -8,17 +8,14 @@ export async function POST(request: Request) {
     try {
         const [bitacoraCreacion] = await pool.execute<RowDataPacket[]>(`
             SELECT 
-                nombre as Nombre, 
+                transaccion as Accion, 
                 cod_municipio as CodMupio, 
-                cod_categoria as CodCategoria,
+                nombre as Nombre, 
+                cod_estado as CodEstado, 
                 usuario_c as UsuarioC, 
                 usuario_u as UsuarioM, 
                 horaYfecha_anterior as FechaC, 
-                horaYfecha_actual as FechaM,
-                transaccion as Accion, 
-                cod_estado as CodEstado, 
-                observacion as Observacion,
-                FechaTransaccion 
+                horaYfecha_actual as FechaM
             FROM bitacora 
             WHERE usuario_c = '${usuario}' 
             AND usuario_u <> '${usuario}'
@@ -26,16 +23,14 @@ export async function POST(request: Request) {
 
         const [bitacoraModificacion] = await pool.execute(`
             SELECT 
-                nombre as Nombre, 
+                transaccion as Accion, 
                 cod_municipio as CodMupio, 
-                cod_categoria as CodCategoria,
+                nombre as Nombre, 
+                cod_estado as CodEstado, 
                 usuario_c as UsuarioC, 
                 usuario_u as UsuarioM, 
                 horaYfecha_anterior as FechaC, 
-                horaYfecha_actual as FechaM,
-                transaccion as Accion, 
-                cod_estado as CodEstado, 
-                observacion as Observacion 
+                horaYfecha_actual as FechaM
                 FROM bitacora 
                 WHERE usuario_c <> '${usuario}' 
                 AND usuario_u = '${usuario}'

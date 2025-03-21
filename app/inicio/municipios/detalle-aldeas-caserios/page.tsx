@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { columns, DetalleAldeaCaserio } from './columns'
 import axios from 'axios'
 import { toast } from 'sonner'
+import moment from 'moment'
 
 export default function DetalleAldeasCaserios() {
   const [ aldeasCaserios, setAldeasCaserios ] = useState<DetalleAldeaCaserio[]>([]);
@@ -40,7 +41,11 @@ export default function DetalleAldeasCaserios() {
                     los cuales cuentan con un alto nivel de autonomía con respecto al gobierno central.
                 </p>
             </div>
-            <DataTable columns={columns} data={aldeasCaserios} />
+            <DataTable 
+                columns={columns} 
+                data={aldeasCaserios} 
+                pdfOrientation='landscape' 
+                fileName={`Reporte Aldeas Caserios ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

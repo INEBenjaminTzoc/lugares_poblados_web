@@ -1,6 +1,7 @@
 import pool from "@/lib/db";
 import { NextResponse } from "next/server";
 import { serialize } from "cookie";
+import bcrypt from 'bcrypt'
 
 export async function POST(request: Request) {
     const { user, password } = await request.json();
@@ -21,10 +22,12 @@ export async function POST(request: Request) {
 
         const existingUser = rows[0];
 
+        const isValidPassword = await bcrypt.compare(password, existingUser.Clave);
+
         if (!existingUser)
             return NextResponse.json({ code: 404, error: "Usuario no encontrado" });
         
-        if (existingUser.Clave !== password)
+        if (!isValidPassword)
             return NextResponse.json({ code: 401, error: "Credenciales inválidas" });
 
         const cookie = serialize("user_role", existingUser.Tipo, {

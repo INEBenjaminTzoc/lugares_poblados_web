@@ -5,6 +5,7 @@ import { columns, DetalleLugarPoblado2018 } from './columns'
 import { toast } from 'sonner';
 import axios from 'axios';
 import { DataTable } from '@/components/data-table';
+import moment from 'moment';
 
 export default function ListarTodosLugaresPoblados2018() {
   const [lugaresPoblados, setLugaresPoblados] = useState<DetalleLugarPoblado2018[]>([]);
@@ -41,7 +42,7 @@ export default function ListarTodosLugaresPoblados2018() {
                     , con base en el censo nacional de población 2018.
                 </p>
             </div>
-            <DataTable columns={columns} data={lugaresPoblados} />
+            <DataTable columns={columns} data={lugaresPoblados} fileName={`Todos los Lugares Poblados 2018 ${moment().format('DD-MM-YYYY')}`} />
         </div>
     </>
   )

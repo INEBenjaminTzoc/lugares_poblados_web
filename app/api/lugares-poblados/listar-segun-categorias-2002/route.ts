@@ -7,13 +7,9 @@ export async function POST(request: Request) {
     try {
         const [rows] = await pool.execute(`
             SELECT  
-                d.id AS ID_Departamento,
                 d.nombre AS Departamento, 
-                m.id AS ID_Municipio,
                 m.nombre AS Municipio, 
-                lp.id AS ID_Lugar_Poblado,
                 lp.nombre AS Nombre, 
-                cat.idcategoria AS ID_Categoria,
                 cat.etiqueta AS Categoria,
                 lp.observacion AS Observacion
                 

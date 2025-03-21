@@ -316,7 +316,11 @@ export default function ListarSegunCategorias() {
                     }
                 </Button>
             </div>
-            <DataTable columns={columns(handleVerArchivosClick)} data={lugaresPoblados} />
+            <DataTable 
+                columns={columns(handleVerArchivosClick)} 
+                data={lugaresPoblados} 
+                pdfOrientation='landscape'
+                fileName={`Lugares Poblados Segun Categoria ${moment().format('DD-MM-YYYY')}`} />
         </div>
         <Dialog open={openDialogReport} onOpenChange={() => { setOpenDialogReport(false) }}>
             <DialogContent className='px-0 py-0 h-[90vh] sm:max-w-[90vw] w-[90vw] overflow-hidden'>

@@ -13,6 +13,7 @@ import { DataTable } from '@/components/data-table';
 import { columns, LugaresPobladosHistorial } from './columns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bitacora, columnsBit } from '../../bitacora/listar-bitacora-usuario/columns';
+import moment from 'moment';
 
 export default function HistorialLugaresPoblados() {
   //-----------------------LISTAS PARA SELECTORES------------------------//
@@ -221,7 +222,8 @@ export default function HistorialLugaresPoblados() {
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value='lugPob'>
-                  <DataTable columns={columns} data={lugaresPobladosHistorial} />
+                  <DataTable columns={columns} data={lugaresPobladosHistorial}
+                    fileName={`Lugares Poblados ${moment().format('DD-MM-YYYY')}`} />
                 </TabsContent>
                 <TabsContent value='historial'>
                   {historiales && historiales.map((historial, index) => (
@@ -229,7 +231,8 @@ export default function HistorialLugaresPoblados() {
                       <h2 className="text-start scroll-m-20 pb-2 text-xl font-semibold tracking-tight first:mt-0">
                         {historial.NombreDepartamento}
                       </h2>
-                      <DataTable columns={columnsBit} data={historial.bitacoras} />
+                      <DataTable columns={columnsBit} data={historial.bitacoras}
+                        fileName={`Historial Lugares Poblados ${moment().format('DD-MM-YYYY')}`} />
                     </div>
                   ))}
                 </TabsContent>
