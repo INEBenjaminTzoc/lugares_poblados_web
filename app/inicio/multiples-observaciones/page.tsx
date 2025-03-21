@@ -115,26 +115,41 @@ export default function MapaInteractivo() {
             return;
         }
         try {
-            selectedRows.forEach(async (registro) => {
-                await axios.put('/api/multiples-observaciones', {
-                    idLugarPoblado: registro.ID,
-                    nuevaObservacion: nuevaObservacion.trim()
-                });
-            });
+            setLoadingUpdate(true);
+            const updatedLugaresPoblados = [...lugaresPoblados];
+    
+            for (const registro of selectedRows) {
+                try {
+                    const res = await axios.put('/api/multiples-observaciones', {
+                        idLugarPoblado: registro.ID,
+                        nuevaObservacion: nuevaObservacion.trim()
+                    });
+    
+                    if (res.data.code === 200) {
+                        const index = updatedLugaresPoblados.findIndex(item => item.ID === registro.ID);
+                        if (index !== -1) {
+                            updatedLugaresPoblados[index] = {
+                                ...updatedLugaresPoblados[index],
+                                Observacion: nuevaObservacion.trim()
+                            };
+                        }
+                    } else {
+                        toast.error(`Error al actualizar el registro con ID ${registro.ID}`);
+                    }
+                } catch (error) {
+                    toast.error(`Error al actualizar el registro con ID ${registro.ID}: ${error}`);
+                }
+            }
+    
+            setLugaresPoblados(updatedLugaresPoblados);
+            toast.success("Registros actualizados correctamente");
         } catch (error) {
             toast.error(`Error al actualizar observaciones: ${error}`);
             setLugaresPoblados([]);
+        } finally {
+            setLoadingUpdate(false);
         }
-        const res = await axios
-            .post('/api/multiples-observaciones', 
-            { municipio: municipioSelected?.idMunicipio });
-        if (res.data.code !== 200) {
-            toast.error("Error al obtener detalle");
-            return;
-        }
-        const detalleLugaresPoblados: LugarPobladoMunicipio[] = res.data.lugaresPoblados;
-        setLugaresPoblados(detalleLugaresPoblados);
-    }
+    };
 
   return (
     <>
